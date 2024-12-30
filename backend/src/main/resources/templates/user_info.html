@@ -1,0 +1,74 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container">
+    <h5 class="my-3 border-bottom pb-2">회원 정보</h5>
+    <div>
+        <ul>
+            <li th:text="|이름: ${user.username}|"></li>
+            <li th:text="|이메일: ${user.email}|"></li>
+        </ul>
+    </div>
+    <div>
+        <a sec:authorize="isAuthenticated()" th:href="@{/user/password_change}">비밀번호 변경</a>
+    </div>
+    <h5 class="my-3 border-bottom pb-2">내가 질문한 글</h5>
+    <table class="table">
+        <thead class="table-dark">
+        <tr class="text-center">
+            <th>질문 번호</th>
+            <th>제목</th>
+            <th style="width:50%">내용</th>
+            <th>작성일시</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="text-center" th:each="question : ${question_list}">
+            <td>
+                <a th:href="@{|/question/detail/${question.id}|}" th:text="${question.id}"></a>
+            </td>
+            <td th:text="${question.subject}"></td>
+            <td th:text="${question.content}"></td>
+            <td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <h5 class="my-3 border-bottom pb-2">내가 답변한 글</h5>
+    <table class="table">
+        <thead class="table-dark">
+        <tr class="text-center">
+            <th>질문 번호</th>
+            <th style="width:50%">내용</th>
+            <th>작성일시</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="text-center" th:each="answer : ${answer_list}">
+            <td>
+                <a th:href="@{|/question/detail/${answer.question.id}#answer_${answer.id}|}" th:text="${answer.question.id}"></a>
+            </td>
+            <td th:text="${answer.content}"></td>
+            <td th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <h5 class="my-3 border-bottom pb-2">내가 작성한 댓글</h5>
+    <table class="table">
+        <thead class="table-dark">
+        <tr class="text-center">
+            <th>질문 번호</th>
+            <th style="width:50%">내용</th>
+            <th>작성일시</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="text-center" th:each="comment : ${comment_list}">
+            <td>
+                <a th:if="${comment.question != null}" th:href="@{|/question/detail/${comment.question.id}|}" th:text="${comment.question.id}"></a>
+                <a th:if="${comment.answer != null}" th:href="@{|/question/detail/${comment.answer.question.id}#answer_${comment.answer.id}|}" th:text="${comment.answer.question.id}"></a>
+            </td>
+            <td th:text="${comment.content}"></td>
+            <td th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</html>

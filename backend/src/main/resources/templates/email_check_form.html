@@ -1,0 +1,13 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container">
+    <h5 class="my-3 border-bottom pb-2">임시 비밀번호 발급</h5>
+    <div th:if="${error != null}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+    <form th:action="@{/user/login/temp_password}" method="post">
+        <div>이메일을 입력해주세요.</div>
+        <div class="mb-3">
+            <input type="email" name="email" th:value="${email}" required>
+        </div>
+        <input type="submit" value="전송" class="btn btn-primary my-2">
+    </form>
+</div>
+</html>

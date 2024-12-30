@@ -1,0 +1,25 @@
+<html layout:decorate="~{layout}">
+<div layout:fragment="content" class="container">
+  <h5 class="my-3 border-bottom pb-2">최근 답변 목록</h5>
+  <table class="table">
+    <thead class="table-dark">
+    <tr class="text-center">
+      <th>질문 번호</th>
+      <th>질문</th>
+      <th style="width:50%">답변</th>
+      <th>작성일시</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="text-center" th:each="answer : ${answer_list}">
+      <td>
+        <a th:href="@{|/question/detail/${answer.question.id}|}" th:text="${answer.question.id}"></a>
+      </td>
+      <td th:text="${answer.question.subject}"></td>
+      <td th:text="${answer.content}"></td>
+      <td th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+</html>

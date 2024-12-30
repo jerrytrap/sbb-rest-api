@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap.min.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/style.css}">
+    <link rel="stylesheet" href="http://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <title>Hello, sbb!</title>
+</head>
+<body>
+<nav th:replace="~{navbar :: navbarFragment}"></nav>
+<th:block layout:fragment="content"></th:block>
+<script th:src="@{/bootstrap.min.js}"></script>
+<th:block layout:fragment="script"></th:block>
+<script src="http://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<th:block layout:fragment="simple_mde"></th:block>
+</body>
+</html>
