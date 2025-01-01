@@ -28,6 +28,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestMapping("/question")
 @RequiredArgsConstructor
@@ -39,22 +40,18 @@ public class QuestionController {
     private final CategoryService categoryService;
 
     @GetMapping("/list")
-    public String list(
-            Model model,
+    @ResponseBody
+    public List<QuestionDto> list(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "kw", defaultValue = "") String kw,
-            @RequestParam(value = "category_id", defaultValue = "1") Integer categoryId,
-            Principal principal) {
-        List<Category> categoryList = categoryService.getAllCategories();
+            @RequestParam(value = "category_id", defaultValue = "1") Integer categoryId
+    ) {
         Category category = categoryService.getCategory(categoryId);
         Page<Question> paging = questionService.getQuestions(category, page, kw);
 
-        model.addAttribute("paging", paging);
-        model.addAttribute("kw", kw);
-        model.addAttribute("category_id", categoryId);
-        model.addAttribute("categoryList", categoryList);
-
-        return "question_list";
+        return paging.stream()
+                .map(QuestionDto::new)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/detail/{id}")
