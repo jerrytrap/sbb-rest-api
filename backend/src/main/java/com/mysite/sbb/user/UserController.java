@@ -1,5 +1,6 @@
 package com.mysite.sbb.user;
 
+import com.mysite.sbb.global.ResponseDto;
 import com.mysite.sbb.util.DataNotFoundException;
 import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.answer.AnswerService;
@@ -7,23 +8,20 @@ import com.mysite.sbb.comment.Comment;
 import com.mysite.sbb.comment.CommentService;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionService;
+import com.mysite.sbb.util.UserConflictException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.InputMismatchException;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Controller
+@RestController
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
@@ -31,33 +29,19 @@ public class UserController {
     private final AnswerService answerService;
     private final CommentService commentService;
 
-    @GetMapping("/signup")
-    public String signup(UserCreateForm userCreateForm) {
-        return "signup_form";
-    }
-
     @PostMapping("/signup")
-    public String signup(@Valid UserCreateForm userCreateForm, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "signup_form";
-        }
-
+    public ResponseDto<Void> signup(@RequestBody @Valid UserCreateForm userCreateForm) {
         if (!userCreateForm.getPassword1().equals(userCreateForm.getPassword2())) {
-            bindingResult.rejectValue("password2", "passwordInCorrect", "2개의 패스워드가 일치하지 않습니다.");
-            return "signup_form";
+            return new ResponseDto<>(400, "2개의 패스워드가 일치하지 않습니다.");
         }
 
         try {
             userService.create(userCreateForm.getUsername(), userCreateForm.getEmail(), userCreateForm.getPassword1());
         } catch (DataIntegrityViolationException e) {
-            bindingResult.reject("signupFailed", "이미 등록된 사용자입니다.");
-            return "signup_form";
-        } catch (Exception e) {
-            bindingResult.reject("signupFailed", e.getMessage());
-            return "signup_form";
+            throw new UserConflictException("아이디나 이메일이 이미 존재합니다.");
         }
 
-        return "redirect:/";
+        return new ResponseDto<>(HttpStatus.CREATED.value(), "회원가입 성공");
     }
 
     @GetMapping("/login")

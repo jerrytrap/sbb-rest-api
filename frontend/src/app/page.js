@@ -7,7 +7,7 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:8080/question/list?category_id=1");
+        const response = await fetch("http://localhost:8080/api/v1/questions");
         if (!response.ok) {
           throw new Error("Failed to fetch");
         }

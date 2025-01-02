@@ -30,18 +30,18 @@ import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RequestMapping("/question")
+@RequestMapping("/api/v1/questions")
 @RequiredArgsConstructor
-@Controller
+@RestController
 public class QuestionController {
     private final QuestionService questionService;
     private final AnswerService answerService;
     private final UserService userService;
     private final CategoryService categoryService;
 
-    @GetMapping("/list")
+    @GetMapping
     @ResponseBody
-    public List<QuestionDto> list(
+    public List<QuestionDto> getQuestions(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "kw", defaultValue = "") String kw,
             @RequestParam(value = "category_id", defaultValue = "1") Integer categoryId

@@ -24,17 +24,13 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/**"))
                         .permitAll()
         ).csrf((csrf) ->
-                csrf.ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**"))
+                csrf.disable()
         ).headers((headers) ->
                 headers.addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
         ).formLogin((formLogin) ->
                 formLogin
                         .loginPage("/user/login")
                         .defaultSuccessUrl("/")
-        ).oauth2Login((oauth2Login) ->
-                        oauth2Login
-                                .loginPage("/user/login")
-                                .failureUrl("/user/login")
         ).logout((logout) ->
                 logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
