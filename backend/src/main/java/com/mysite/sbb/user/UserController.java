@@ -1,6 +1,7 @@
 package com.mysite.sbb.user;
 
 import com.mysite.sbb.global.ResponseDto;
+import com.mysite.sbb.security.JwtTokenProvider;
 import com.mysite.sbb.util.DataNotFoundException;
 import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.answer.AnswerService;
@@ -8,11 +9,17 @@ import com.mysite.sbb.comment.Comment;
 import com.mysite.sbb.comment.CommentService;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionService;
+import com.mysite.sbb.util.LoginFailException;
 import com.mysite.sbb.util.UserConflictException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +35,8 @@ public class UserController {
     private final QuestionService questionService;
     private final AnswerService answerService;
     private final CommentService commentService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/signup")
     public ResponseDto<Void> signup(@RequestBody @Valid UserCreateForm userCreateForm) {
@@ -44,9 +53,29 @@ public class UserController {
         return new ResponseDto<>(HttpStatus.CREATED.value(), "회원가입 성공");
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login_form";
+    @PostMapping("/login")
+    public ResponseDto<?> login(@RequestBody @Valid LoginRequestBody loginRequestBody) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequestBody.getUsername(), loginRequestBody.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            SiteUser siteUser = userService.getUser(authentication.getName());
+            String token = jwtTokenProvider.createToken(authentication.getName());
+
+            return new ResponseDto<>(
+                    200,
+                    "로그인 성공",
+                    new UserResponseDto(
+                            siteUser.getUsername(),
+                            siteUser.getEmail(),
+                            token
+                    )
+            );
+        } catch (AuthenticationException e) {
+            throw new LoginFailException("아이디, 비밀번호를 다시 확인해주세요.");
+        }
     }
 
     @GetMapping("/info")

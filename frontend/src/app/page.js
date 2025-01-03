@@ -23,6 +23,10 @@ export default function Home() {
 
   return (
       <div>
+        <div>
+          <a href="/user/signup">회원가입</a>
+          <a href="/user/login">로그인</a>
+        </div>
         <table>
           <thead>
           <tr>
@@ -34,15 +38,15 @@ export default function Home() {
           </tr>
           </thead>
           <tbody>
-            {questions.map((question) => (
-                <tr key={question.id}>
-                    <td>{question.id}</td>
-                    <td>{question.subject}</td>
-                    <td>{question.authorName}</td>
-                    <td>{question.createDate}</td>
-                    <td>{question.voterCount}</td>
-                </tr>
-            ))}
+          {questions.map((question) => (
+              <tr key={question.id}>
+                <td>{question.id}</td>
+                <td>{question.subject}</td>
+                <td>{question.authorName}</td>
+                <td>{question.createDate}</td>
+                <td>{question.voterCount}</td>
+              </tr>
+          ))}
           </tbody>
         </table>
       </div>
