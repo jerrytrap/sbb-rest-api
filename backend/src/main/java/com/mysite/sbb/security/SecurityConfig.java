@@ -44,6 +44,14 @@ public class SecurityConfig {
                             response.setStatus(400);
                         })
                         .permitAll()
+        ).logout(logout ->
+                logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(200);
+                        })
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
         );
 
         return http.build();

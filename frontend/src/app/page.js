@@ -21,11 +21,20 @@ export default function Home() {
     fetchData();
   }, []);
 
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    await fetch("http://localhost:8080/user/logout", {
+      method: 'POST',
+      credentials: 'include'
+    });
+  }
+
   return (
       <div>
         <div>
           <a href="/user/signup">회원가입</a>
           <a href="/user/login">로그인</a>
+          <a href="#" onClick={handleLogout}>로그아웃</a>
         </div>
         <table>
           <thead>
