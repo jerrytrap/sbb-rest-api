@@ -1,5 +1,4 @@
 'use client';
-
 import {useRouter} from "next/navigation";
 
 export default function Login() {
@@ -12,21 +11,21 @@ export default function Login() {
         };
         e.preventDefault();
 
-        const response = await fetch("http://localhost:8080/user/login", {
+        const urlEncodedData = new URLSearchParams(formData).toString();
+
+        const response = await fetch("http://localhost:8080/api/login", {
             method: "POST",
             headers: {
-                'Content-type': 'application/json'
+                'Content-type': 'application/x-www-form-urlencoded'
             },
-            body: JSON.stringify(formData),
-            credentials: "include"
-        });
+            body: urlEncodedData,
+            credentials: 'include'
+        })
 
-        const data = await response.json();
-        alert(data.message);
-
-        if (response.ok) {
-            localStorage.setItem("jwtToken", data.data.token);
+        if (response.status === 200) {
             await router.replace("/");
+        } else {
+            alert("아이디와 비밀번호를 다시 확인해주세요.")
         }
     };
 
