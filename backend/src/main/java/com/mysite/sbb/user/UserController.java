@@ -9,11 +9,15 @@ import com.mysite.sbb.comment.CommentService;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionService;
 import com.mysite.sbb.util.UserConflictException;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,6 +49,20 @@ public class UserController {
         }
 
         return new ResponseDto<>(HttpStatus.CREATED.value(), "회원가입 성공");
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<String> checkLogin(HttpSession session) {
+        SecurityContext securityContext = (SecurityContext) session.getAttribute("SPRING_SECURITY_CONTEXT");
+
+        if (securityContext != null) {
+            Authentication authentication = securityContext.getAuthentication();
+
+            if (authentication != null && authentication.isAuthenticated()) {
+                return new ResponseEntity<>("authenticated", HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>("unauthenticated", HttpStatus.UNAUTHORIZED);
     }
 
     @GetMapping("/info")

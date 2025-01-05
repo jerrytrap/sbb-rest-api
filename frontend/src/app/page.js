@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 export default function Home() {
   const [questions, setQuestions] = useState([]);
+  const [isLogin, setIsLogin] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,6 +20,7 @@ export default function Home() {
     };
 
     fetchData();
+    checkLogin();
   }, []);
 
   const handleLogout = async (e) => {
@@ -27,14 +29,35 @@ export default function Home() {
       method: 'POST',
       credentials: 'include'
     });
+    checkLogin();
+  }
+
+  const checkLogin = () => {
+    fetch("http://localhost:8080/user/status", {
+      method: 'GET',
+      credentials: 'include'
+    }).then((result) => {
+      if (result.status === 200) {
+        setIsLogin(true);
+      } else if (result.status === 401) {
+        setIsLogin(false);
+      }
+    });
   }
 
   return (
       <div>
         <div>
-          <a href="/user/signup">회원가입</a>
-          <a href="/user/login">로그인</a>
-          <a href="#" onClick={handleLogout}>로그아웃</a>
+          {isLogin ?
+              <div>
+                <a href="#" onClick={handleLogout}>로그아웃</a>
+              </div>
+              :
+              <div>
+                <a href="/user/signup">회원가입</a>
+                <a href="/user/login">로그인</a>
+              </div>
+          }
         </div>
         <table>
           <thead>
