@@ -9,22 +9,22 @@ export default function QuestionDetail() {
     const [username, setUsername] = useState("");
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch("http://localhost:8080/api/v1/questions/" + params.id);
-                if (!response.ok) {
-                    throw new Error("Failed to fetch");
-                }
-                const result = await response.json();
-                setQuestion(result);
-            } catch (error) {
-                throw new Error("Error fetching data:", error);
-            }
-        };
-
         fetchData();
         getUsername();
     }, []);
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/api/v1/questions/" + params.id);
+            if (!response.ok) {
+                throw new Error("Failed to fetch");
+            }
+            const result = await response.json();
+            setQuestion(result);
+        } catch (error) {
+            throw new Error("Error fetching data:", error);
+        }
+    };
 
     const getUsername = () => {
         fetch("http://localhost:8080/user/status", {
@@ -53,7 +53,18 @@ export default function QuestionDetail() {
                 }
             });
         }
+    }
 
+    const voteQuestion = (e) => {
+        e.preventDefault();
+        fetch("http://localhost:8080/api/v1/questions/vote/" + params.id, {
+            method: 'GET',
+            credentials: 'include'
+        }).then((result) => {
+            if (result.status === 200) {
+                fetchData();
+            }
+        });
     }
 
     return (
@@ -76,7 +87,8 @@ export default function QuestionDetail() {
                     </div>
                     <div className="my-3 flex space-x-3">
                         <a href="#"
-                           className="px-4 py-2 text-sm border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md">
+                           className="px-4 py-2 text-sm border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md"
+                            onClick={voteQuestion}>
                             추천
                             <span
                                 className="rounded-full bg-green-500 text-white ml-2 px-2 py-1 text-xs">{question.voterCount}</span>

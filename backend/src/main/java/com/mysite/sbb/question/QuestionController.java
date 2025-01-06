@@ -1,24 +1,16 @@
 package com.mysite.sbb.question;
 
 import com.mysite.sbb.category.Category;
-import com.mysite.sbb.answer.Answer;
-import com.mysite.sbb.answer.AnswerForm;
 import com.mysite.sbb.answer.AnswerService;
 import com.mysite.sbb.category.CategoryService;
-import com.mysite.sbb.comment.CommentForm;
 import com.mysite.sbb.user.SiteUser;
 import com.mysite.sbb.user.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -101,12 +93,12 @@ public class QuestionController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("vote/{id}")
-    public String vote(Principal principal, @PathVariable("id") Integer id) {
+    @GetMapping("/vote/{id}")
+    public ResponseEntity<String> vote(Principal principal, @PathVariable("id") Integer id) {
         Question question = questionService.getQuestion(id);
         SiteUser siteUser = userService.getUser(principal.getName());
         questionService.vote(question, siteUser);
 
-        return String.format("redirect:/question/detail/%s", id);
+        return new ResponseEntity<>("Success", HttpStatus.OK);
     }
 }
