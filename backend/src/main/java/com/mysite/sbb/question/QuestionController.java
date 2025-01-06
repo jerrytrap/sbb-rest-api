@@ -56,49 +56,8 @@ public class QuestionController {
         return new QuestionDto(question);
     }
 
-    @GetMapping("/detail/{id}")
-    public String detail(
-            Model model,
-            AnswerForm answerForm,
-            CommentForm commentForm,
-            @PathVariable("id") Integer id,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "order", defaultValue = "createDate") String order,
-            Principal principal,
-            HttpServletRequest request
-    ) {
-        Question question = questionService.getQuestion(id);
-
-        String referer = request.getHeader("Referer");
-        if (referer.contains("list")) {
-            questionService.viewQuestion(question);
-        }
-
-        Page<Answer> paging = answerService.getAnswers(question, page, order);
-
-        model.addAttribute("question", question);
-        model.addAttribute("answerList", paging);
-        model.addAttribute("order", order);
-
-        if (principal instanceof OAuth2AuthenticationToken) {
-            OAuth2AuthenticationToken oAuth2User = (OAuth2AuthenticationToken) principal;
-            model.addAttribute("username", oAuth2User.getName());
-        }
-        else if (principal instanceof UsernamePasswordAuthenticationToken) {
-            UsernamePasswordAuthenticationToken authToken = (UsernamePasswordAuthenticationToken) principal;
-
-            Object principalDetails = authToken.getPrincipal();
-            if (principalDetails instanceof UserDetails) {
-                UserDetails userDetails = (UserDetails) principalDetails;
-                model.addAttribute("username", userDetails.getUsername());
-            }
-        }
-
-        return "question_detail";
-    }
-
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<String> create(@Valid QuestionForm questionForm, Principal principal) {
         try {
             SiteUser siteUser = userService.getUser(principal.getName());

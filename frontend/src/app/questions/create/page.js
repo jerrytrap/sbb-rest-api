@@ -9,7 +9,7 @@ export default function QuestionCreateForm() {
         e.preventDefault();
         const formData = new FormData(e.target);
 
-        fetch("http://localhost:8080/api/v1/questions/create", {
+        fetch("http://localhost:8080/api/v1/questions", {
             method: "POST",
             body: formData,
             credentials: 'include'
