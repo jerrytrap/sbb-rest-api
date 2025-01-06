@@ -6,21 +6,18 @@ import com.mysite.sbb.answer.AnswerForm;
 import com.mysite.sbb.answer.AnswerService;
 import com.mysite.sbb.category.CategoryService;
 import com.mysite.sbb.comment.CommentForm;
-import com.mysite.sbb.comment.CommentService;
 import com.mysite.sbb.user.SiteUser;
 import com.mysite.sbb.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -96,24 +93,15 @@ public class QuestionController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/create")
-    public String create(QuestionForm questionForm, @RequestParam ("category_id") Integer categoryId) {
-        Category category = categoryService.getCategory(categoryId);
-        questionForm.setCategory(category);
-
-        return "question_form";
-    }
-
-    @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String create(@Valid QuestionForm questionForm, BindingResult bindingResult, Principal principal) {
-        if (bindingResult.hasErrors()) {
-            return "question_form";
+    public ResponseEntity<String> create(@Valid QuestionForm questionForm, Principal principal) {
+        try {
+            SiteUser siteUser = userService.getUser(principal.getName());
+            questionService.create(new Category(1, "자유"), questionForm.getSubject(), questionForm.getContent(), siteUser);
+            return new ResponseEntity<>("Success", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-
-        SiteUser siteUser = userService.getUser(principal.getName());
-        questionService.create(questionForm.getCategory(), questionForm.getSubject(), questionForm.getContent(), siteUser);
-        return "redirect:/question/list?category_id=%s".formatted(questionForm.getCategory().getId());
     }
 
     @PreAuthorize("isAuthenticated()")

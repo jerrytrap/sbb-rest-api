@@ -8,6 +8,7 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const defaultCategoryId = 1;
         const response = await fetch("http://localhost:8080/api/v1/questions");
         if (!response.ok) {
           throw new Error("Failed to fetch");
@@ -58,6 +59,9 @@ export default function Home() {
                 <a href="/user/login">로그인</a>
               </div>
           }
+        </div>
+        <div>
+          <a href="/questions/create">질문 등록하기</a>
         </div>
         <table>
           <thead>
