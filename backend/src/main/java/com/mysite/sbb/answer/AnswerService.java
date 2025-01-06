@@ -38,6 +38,9 @@ public class AnswerService {
             throw new DataNotFoundException("answer not found");
         }
     }
+    public List<Answer> getAnswers(Question question) {
+        return answerRepository.findAllByQuestion(question);
+    }
 
     public List<Answer> getAnswers(SiteUser user) {
         return answerRepository.findAllByAuthor(user);

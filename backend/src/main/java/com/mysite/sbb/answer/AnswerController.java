@@ -6,6 +6,7 @@ import com.mysite.sbb.user.SiteUser;
 import com.mysite.sbb.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,14 +18,27 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestMapping("/api/v1/answers")
 @RequiredArgsConstructor
-@Controller
+@RestController
 public class AnswerController {
     private final QuestionService questionService;
     private final AnswerService answerService;
     private final UserService userService;
+
+    @GetMapping
+    public List<AnswerDto> getAnswers(
+            @RequestParam("question_id") Integer questionId
+    ) {
+        Question question = questionService.getQuestion(questionId);
+        List<Answer> answers = answerService.getAnswers(question);
+
+        return answers.stream()
+                .map(AnswerDto::new)
+                .collect(Collectors.toList());
+    }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping

@@ -8,13 +8,15 @@ export default function QuestionDetail() {
     const [question, setQuestion] = useState({});
     const [username, setUsername] = useState("");
     const [answerContent, setAnswerContent] = useState("");
+    const [answers, setAnswers] = useState([]);
 
     useEffect(() => {
-        fetchData();
+        fetchQuestion();
+        fetchAnswers();
         getUsername();
     }, []);
 
-    const fetchData = async () => {
+    const fetchQuestion = async () => {
         try {
             const response = await fetch("http://localhost:8080/api/v1/questions/" + params.id);
             if (!response.ok) {
@@ -63,8 +65,18 @@ export default function QuestionDetail() {
             credentials: 'include'
         }).then((result) => {
             if (result.status === 200) {
-                fetchData();
+                fetchQuestion();
             }
+        });
+    }
+
+    const fetchAnswers = () => {
+        fetch("http://localhost:8080/api/v1/answers?question_id=" + params.id, {
+            method: 'GET',
+        }).then((result) =>
+            result.json()
+        ).then((data) => {
+            setAnswers(data);
         });
     }
 
@@ -80,6 +92,7 @@ export default function QuestionDetail() {
         }).then((result) => {
             if (result.status === 201) {
                 setAnswerContent("");
+                fetchAnswers();
             }
         });
     }
@@ -126,6 +139,50 @@ export default function QuestionDetail() {
                     </div>
                 </div>
             </div>
+
+            <h5 className="border-bottom my-3 py-2" >{answers.length + "개의 답변이 있습니다."}</h5>
+
+            {answers.map((answer) => (
+                <div key={answer.id} className="card my-3">
+                    <div className="my-3 border rounded-lg shadow-md bg-white p-4">
+                        <div className="card-text mb-4">{answer.content}</div>
+                        <div className="flex justify-end space-x-4">
+                            {answer.modifyDate && (
+                                <div className="badge bg-light text-dark p-2 rounded-md shadow-md">
+                                    <div className="mb-2">modified at</div>
+                                    <div>{new Date(answer.modifyDate).toLocaleString()}</div>
+                                </div>
+                            )}
+                            <div className="badge bg-light text-dark p-2 rounded-md shadow-md">
+                                <div className="mb-2">
+                                    {answer.authorName}
+                                </div>
+                                <div>{new Date(answer.createDate).toLocaleString()}</div>
+                            </div>
+                        </div>
+
+                        <div className="my-3 flex space-x-3">
+                            <button
+                                className="recommend px-4 py-2 text-sm border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md"
+                            >
+                                추천
+                                <span
+                                    className="badge rounded-full bg-green-500 text-white ml-2">{answer.voterCount}</span>
+                            </button>
+                            {answer.author && answer.author.username === username && (
+                                <>
+                                    <button className="btn btn-sm btn-outline-secondary">
+                                        수정
+                                    </button>
+                                    <button className="delete btn btn-sm btn-outline-secondary">
+                                        삭제
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            ))}
 
             <div className="my-3">
                 <form onSubmit={createAnswer}>

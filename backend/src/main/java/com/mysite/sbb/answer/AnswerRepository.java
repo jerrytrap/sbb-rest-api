@@ -14,6 +14,8 @@ public interface AnswerRepository extends JpaRepository<Answer, Integer> {
 
     List<Answer> findAllByAuthor(SiteUser user);
 
+    List<Answer> findAllByQuestion(Question question);
+
     @Query("SELECT a FROM Answer a "
             + "LEFT JOIN a.voter as v "
             + "WHERE a.question=:question "
