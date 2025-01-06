@@ -7,6 +7,7 @@ import com.mysite.sbb.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.security.Principal;
 import java.util.List;
 
-@RequestMapping("/answer")
+@RequestMapping("/api/v1/answers")
 @RequiredArgsConstructor
 @Controller
 public class AnswerController {
@@ -26,24 +27,21 @@ public class AnswerController {
     private final UserService userService;
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/create/{question_id}")
-    public String create(
-            Model model,
-            @Valid AnswerForm answerForm,
-            BindingResult bindingResult,
-            @PathVariable("question_id") Integer questionId,
+    @PostMapping
+    public ResponseEntity<String> create(
+            @RequestBody @Valid AnswerForm answerForm,
+            @RequestParam("question_id") Integer questionId,
             Principal principal
     ) {
-        Question question = questionService.getQuestion(questionId);
-        SiteUser siteUser = userService.getUser(principal.getName());
+        try {
+            Question question = questionService.getQuestion(questionId);
+            SiteUser siteUser = userService.getUser(principal.getName());
 
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("question", question);
-            return "question_detail";
+            answerService.create(question, answerForm.getContent(), siteUser);
+            return new ResponseEntity<>("Success", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-
-        Answer answer = answerService.create(question, answerForm.getContent(), siteUser);
-        return String.format("redirect:/question/detail/%s#answer_%s", answer.getQuestion().getId(), answer.getId());
     }
 
     @PreAuthorize("isAuthenticated()")
