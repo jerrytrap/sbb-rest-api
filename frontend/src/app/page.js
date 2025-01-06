@@ -1,7 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   const [questions, setQuestions] = useState([]);
   const [isLogin, setIsLogin] = useState(false);
 
@@ -46,6 +48,11 @@ export default function Home() {
     });
   }
 
+  const showDetail = (e, question) => {
+    e.preventDefault();
+    router.push(`/questions/detail/${question.id}`)
+  }
+
   return (
       <div>
         <div>
@@ -77,7 +84,7 @@ export default function Home() {
           {questions.map((question) => (
               <tr key={question.id}>
                 <td>{question.id}</td>
-                <td>{question.subject}</td>
+                <td><a href="#" onClick={(e) => showDetail(e, question)}>{question.subject}</a></td>
                 <td>{question.authorName}</td>
                 <td>{question.createDate}</td>
                 <td>{question.voterCount}</td>

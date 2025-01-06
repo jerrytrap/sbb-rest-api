@@ -37,7 +37,6 @@ public class QuestionController {
     private final CategoryService categoryService;
 
     @GetMapping
-    @ResponseBody
     public List<QuestionDto> getQuestions(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "kw", defaultValue = "") String kw,
@@ -49,6 +48,13 @@ public class QuestionController {
         return paging.stream()
                 .map(QuestionDto::new)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{id}")
+    public QuestionDto getQuestion(@PathVariable Integer id) {
+        Question question = questionService.getQuestion(id);
+
+        return new QuestionDto(question);
     }
 
     @GetMapping("/detail/{id}")
