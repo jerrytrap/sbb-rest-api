@@ -59,7 +59,7 @@ public class UserController {
             Authentication authentication = securityContext.getAuthentication();
 
             if (authentication != null && authentication.isAuthenticated()) {
-                return new ResponseEntity<>("authenticated", HttpStatus.OK);
+                return new ResponseEntity<>(authentication.getName(), HttpStatus.OK);
             }
         }
         return new ResponseEntity<>("unauthenticated", HttpStatus.UNAUTHORIZED);
