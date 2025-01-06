@@ -126,15 +126,19 @@ public class QuestionController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/delete/{id}")
-    public String delete(Principal principal, @PathVariable("id") Integer id) {
-        Question question = questionService.getQuestion(id);
-        if(!question.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
-        }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(Principal principal, @PathVariable("id") Integer id) {
+        try {
+            Question question = questionService.getQuestion(id);
+            if(!question.getAuthor().getUsername().equals(principal.getName())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
+            }
 
-        questionService.delete(question);
-        return "redirect:/";
+            questionService.delete(question);
+            return new ResponseEntity<>("Success", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        }
     }
 
     @PreAuthorize("isAuthenticated()")

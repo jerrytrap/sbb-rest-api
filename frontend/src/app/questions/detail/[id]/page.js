@@ -1,9 +1,10 @@
 'use client';
-import {useParams } from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
 
 export default function QuestionDetail() {
     const params = useParams();
+    const router = useRouter();
     const [question, setQuestion] = useState({});
     const [username, setUsername] = useState("");
 
@@ -38,6 +39,23 @@ export default function QuestionDetail() {
         });
     }
 
+    const deleteQuestion = (e) => {
+        e.preventDefault();
+        const isConfirmed = confirm("정말 삭제하시겠습니까?");
+
+        if (isConfirmed) {
+            fetch("http://localhost:8080/api/v1/questions/" + params.id, {
+                method: 'DELETE',
+                credentials: 'include'
+            }).then((result) => {
+                if (result.status === 200) {
+                    router.replace("/");
+                }
+            });
+        }
+
+    }
+
     return (
         <div className="m-4">
             <h2 className="border-b-2 py-2 text-xl font-semibold">{question.subject}</h2>
@@ -70,7 +88,8 @@ export default function QuestionDetail() {
                                     수정
                                 </a>
                                 <a href="#"
-                                   className="px-4 py-2 text-sm text-red-600 border border-red-600 hover:bg-red-100 rounded-md">
+                                   className="px-4 py-2 text-sm text-red-600 border border-red-600 hover:bg-red-100 rounded-md"
+                                    onClick={deleteQuestion}>
                                     삭제
                                 </a>
                             </>
