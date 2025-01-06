@@ -30,19 +30,37 @@ export default function Login() {
     };
 
     return (
-        <div>
-            <form onSubmit={requestLogin} method="post">
-                <div>
-                    <label htmlFor="username" className="form-label">사용자ID</label>
-                    <input type="text" name="username" className="form-control"/>
+        <div className="max-w-sm mx-auto p-6 border rounded-lg shadow-lg">
+            <form onSubmit={requestLogin} method="post" className="space-y-4">
+                <div className="mb-4">
+                    <label htmlFor="username" className="block text-lg font-medium text-gray-700">사용자ID</label>
+                    <input
+                        type="text"
+                        name="username"
+                        className="form-control w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
                 </div>
-                <div>
-                    <label htmlFor="password" className="form-label">비밀번호</label>
-                    <input type="password" name="password" className="form-control"/>
+
+                <div className="mb-4">
+                    <label htmlFor="password" className="block text-lg font-medium text-gray-700">비밀번호</label>
+                    <input
+                        type="password"
+                        name="password"
+                        className="form-control w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
                 </div>
-                <button type="submit">로그인</button>
+
+                <button
+                    type="submit"
+                    className="w-full bg-blue-500 text-white py-3 rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                    로그인
+                </button>
             </form>
-            <span><a href="">비밀번호를 분실했어요.</a></span>
+
+            <div className="mt-4 text-center">
+                <span className="text-sm text-blue-500 hover:underline"><a href="">비밀번호를 분실했어요.</a></span>
+            </div>
         </div>
     );
 }
