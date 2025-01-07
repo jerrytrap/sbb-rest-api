@@ -12,6 +12,7 @@ export default function QuestionDetail() {
     const [totalPages, setTotalPages] = useState(0);
     const [totalAnswers, setTotalAnswers] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
+    const [order, setOrder] = useState("createDate");
 
     useEffect(() => {
         fetchQuestion();
@@ -21,7 +22,7 @@ export default function QuestionDetail() {
 
     useEffect(() => {
         fetchAnswers();
-    }, [currentPage]);
+    }, [currentPage, order]);
 
     const fetchQuestion = async () => {
         try {
@@ -127,7 +128,7 @@ export default function QuestionDetail() {
 
     const fetchAnswers = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/answers?question_id=${params.id}&page=${currentPage}`);
+            const response = await fetch(`http://localhost:8080/api/v1/answers?question_id=${params.id}&page=${currentPage}&sort=${order}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch");
             }
@@ -294,6 +295,12 @@ export default function QuestionDetail() {
             </div>
 
             <h5 className="border-bottom my-3 py-2">{totalAnswers + "개의 답변이 있습니다."}</h5>
+
+            <select id="select_order" value={order} onChange={(e) => setOrder(e.target.value)}
+                    className="block w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                <option value="createDate" data-order="createDate">최신순</option>
+                <option value="voter" data-order="voter">추천순</option>
+            </select>
 
             {answers.map((answer) => (
                 <div key={answer.id} className="card my-3">
