@@ -98,12 +98,12 @@ public class AnswerController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/vote/{id}")
-    public String vote(@PathVariable("id") Integer id, Principal principal) {
+    public ResponseEntity<String> vote(@PathVariable("id") Integer id, Principal principal) {
         Answer answer = answerService.getAnswer(id);
         SiteUser siteUser = userService.getUser(principal.getName());
-
         answerService.vote(answer, siteUser);
-        return String.format("redirect:/question/detail/%s#answer_%s", answer.getQuestion().getId(), answer.getId());
+
+        return new ResponseEntity<>("Success", HttpStatus.OK);
     }
 
     @GetMapping("/recent")

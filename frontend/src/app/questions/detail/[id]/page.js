@@ -86,6 +86,18 @@ export default function QuestionDetail() {
         });
     }
 
+    const voteAnswer = (e, id) => {
+        e.preventDefault();
+        fetch("http://localhost:8080/api/v1/answers/vote/" + id, {
+            method: 'GET',
+            credentials: 'include'
+        }).then((result) => {
+            if (result.status === 200) {
+                fetchAnswers();
+            }
+        });
+    }
+
     const fetchAnswers = () => {
         fetch("http://localhost:8080/api/v1/answers?question_id=" + params.id, {
             method: 'GET',
@@ -178,13 +190,13 @@ export default function QuestionDetail() {
                         </div>
 
                         <div className="my-3 flex space-x-3">
-                            <button
-                                className="recommend px-4 py-2 text-sm border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md"
-                            >
+                            <a href="#"
+                               className="px-4 py-2 text-sm border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md"
+                               onClick={(e) => voteAnswer(e, answer.id)}>
                                 추천
                                 <span
-                                    className="badge rounded-full bg-green-500 text-white ml-2">{answer.voterCount}</span>
-                            </button>
+                                    className="rounded-full bg-green-500 text-white ml-2 px-2 py-1 text-xs">{answer.voterCount}</span>
+                            </a>
                             {answer.authorName === username && (
                                 <>
                                     <a href={`/answers/modify/${answer.id}`}
