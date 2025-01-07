@@ -36,7 +36,7 @@ public class QuestionController {
     ) {
         Category category = categoryService.getCategory(categoryId);
         Page<Question> paging = questionService.getQuestions(category, page, kw);
-
+        System.out.println(kw);
         return convertPageToDto(paging);
     }
 

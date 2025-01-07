@@ -8,26 +8,27 @@ export default function Home() {
     const [questions, setQuestions] = useState([]);
     const [totalQuestions, setTotalQuestions] = useState(0);
     const [isLogin, setIsLogin] = useState(false);
+    const [keyword, setKeyword] = useState("");
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(`http://localhost:8080/api/v1/questions?page=${currentPage}`);
-                if (!response.ok) {
-                    throw new Error("Failed to fetch");
-                }
-                const result = await response.json();
-
-                setQuestions(result.content);
-                setTotalQuestions(result.totalPages);
-            } catch (error) {
-                throw new Error("Error fetching data:", error);
-            }
-        };
-
-        fetchData();
+        fetchQuestions();
         checkLogin();
     }, [currentPage]);
+
+    const fetchQuestions = async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/v1/questions?page=${currentPage}&kw=${keyword}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch");
+            }
+            const result = await response.json();
+
+            setQuestions(result.content);
+            setTotalQuestions(result.totalPages);
+        } catch (error) {
+            throw new Error("Error fetching data:", error);
+        }
+    };
 
     const handleLogout = async (e) => {
         e.preventDefault();
@@ -89,13 +90,24 @@ export default function Home() {
                 )}
             </div>
 
-            <div className="mb-4">
+            <div className="w-full sm:w-1/2 flex justify-between mb-4 mr-4">
                 <a
                     href="/questions/create"
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                 >
                     질문 등록하기
                 </a>
+
+                <div className="flex items-center space-x-2">
+                    <input type="text" id="search_kw" value={keyword} onChange={(e) => setKeyword(e.target.value)}
+                           className="w-full sm:w-64 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    <button
+                        onClick={fetchQuestions}
+                        className="px-4 py-2 bg-blue-500 text-white border border-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        type="button" id="btn_search">
+                        찾기
+                    </button>
+                </div>
             </div>
 
             <table className="min-w-full table-auto border-collapse">
@@ -130,7 +142,7 @@ export default function Home() {
                 </tbody>
             </table>
 
-            <div className="flex justify-center space-x-2"ㄴ>
+            <div className="flex justify-center space-x-2" ㄴ>
                 {currentPage > 0 && (
                     <button
                         onClick={() => handlePageChange(currentPage - 1)}
