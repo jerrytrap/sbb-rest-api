@@ -9,9 +9,11 @@ export default function QuestionDetail() {
     const [username, setUsername] = useState("");
     const [answerContent, setAnswerContent] = useState("");
     const [answers, setAnswers] = useState([]);
+    const [questionComment, setQuestionComment] = useState([]);
 
     useEffect(() => {
         fetchQuestion();
+        fetchQuestionComment();
         fetchAnswers();
         getUsername();
     }, []);
@@ -125,6 +127,37 @@ export default function QuestionDetail() {
         });
     }
 
+    const fetchQuestionComment = () => {
+        fetch("http://localhost:8080/api/v1/comment/question?question_id=" + params.id, {
+            method: 'GET',
+        }).then((result) =>
+            result.json()
+        ).then((data) => {
+            setQuestionComment(data);
+        });
+    }
+
+    const addQuestionComment = (e) => {
+        e.preventDefault();
+        const content = e.target.elements.content.value
+
+        const comment = {
+            "content": content,
+            "questionId": params.id
+        };
+
+        fetch("http://localhost:8080/api/v1/comment", {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(comment),
+            credentials: 'include'
+        }).then((result) => {
+            if (result.status === 201) {
+                fetchQuestionComment();
+            }
+        });
+    }
+
     return (
         <div className="m-4">
             <h2 className="border-b-2 py-2 text-xl font-semibold">{question.subject}</h2>
@@ -165,10 +198,55 @@ export default function QuestionDetail() {
                             </>
                         ) : null}
                     </div>
+
+                    <hr/>
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            {questionComment.map((comment) => (
+                                    <div className="flex justify-between items-center" key={comment.id}>
+                                        <div className="text-sm text-gray-700">
+                                            <p className="font-medium">{comment.content}</p>
+                                            <span className="text-xs text-gray-500">{comment.authorName}</span>
+                                            <span
+                                                className="text-xs text-gray-500 ml-2">{new Date(comment.createDate).toLocaleString()}</span>
+                                        </div>
+                                        <div className="space-x-2">
+                                            <a href=""
+                                               className="px-4 py-2 text-sm text-blue-600 border border-blue-600 hover:bg-blue-100 rounded-md">
+                                                수정
+                                            </a>
+                                            <a href=""
+                                               className="px-4 py-2 text-sm text-red-600 border border-red-600 hover:bg-red-100 rounded-md">
+                                                삭제
+                                            </a>
+                                        </div>
+                                        <hr className="border-t border-gray-200"/>
+                                    </div>
+                                )
+                            )}
+                        </div>
+
+                        <div className="mt-4 space-y-4">
+                            <form onSubmit={addQuestionComment} className="space-y-4">
+                                <input type="text"
+                                       className="w-full p-2 border border-gray-300 rounded-md text-gray-500"
+                                       placeholder={username !== "" ? '답변을 작성하세요' : '로그인이 필요합니다.'}
+                                       name="content"
+                                       disabled={username === ""}
+                                       required/>
+
+                                <button type="submit"
+                                        disabled={username === ""}
+                                        className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    등록
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <h5 className="border-bottom my-3 py-2" >{answers.length + "개의 답변이 있습니다."}</h5>
+            <h5 className="border-bottom my-3 py-2">{answers.length + "개의 답변이 있습니다."}</h5>
 
             {answers.map((answer) => (
                 <div key={answer.id} className="card my-3">

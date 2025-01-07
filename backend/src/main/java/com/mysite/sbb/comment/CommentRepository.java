@@ -1,5 +1,6 @@
 package com.mysite.sbb.comment;
 
+import com.mysite.sbb.question.Question;
 import com.mysite.sbb.user.SiteUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,4 +14,6 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
             + "ORDER BY c.createDate desc "
             + "LIMIT :limit")
     List<Comment> findAllOrderByCreateDateLimit(Integer limit);
+
+    List<Comment> findAllByQuestion(Question question);
 }

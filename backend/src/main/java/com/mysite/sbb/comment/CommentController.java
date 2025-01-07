@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,28 +20,41 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@RequestMapping("/comment")
+@RequestMapping("/api/v1/comment")
 @RequiredArgsConstructor
-@Controller
+@RestController
 public class CommentController {
     private final CommentService commentService;
     private final AnswerService answerService;
     private final QuestionService questionService;
     private final UserService userService;
 
+    @GetMapping("/question")
+    public List<CommentDto> getQuestionComment(@RequestParam("question_id") Integer questionId) {
+        Question question = questionService.getQuestion(questionId);
+        return commentService.getCommentsByQuestion(question)
+                .stream()
+                .map(CommentDto::new)
+                .collect(Collectors.toList());
+    }
+
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/create/question/{id}")
-    public String createQuestionComment(
-            @ModelAttribute CommentForm commentForm,
-            @PathVariable Integer id,
+    @PostMapping
+    public ResponseEntity<String> createQuestionComment(
+            @RequestBody @Valid CommentForm commentForm,
             Principal principal
     ) {
-        Question question = questionService.getQuestion(commentForm.getQuestionId());
-        SiteUser siteUser = userService.getUser(principal.getName());
+        try {
+            Question question = questionService.getQuestion(commentForm.getQuestionId());
+            SiteUser siteUser = userService.getUser(principal.getName());
 
-        commentService.createComment(commentForm.getContent(), question, siteUser);
-        return "redirect:/question/detail/%s".formatted(id);
+            commentService.createComment(commentForm.getContent(), question, siteUser);
+            return new ResponseEntity<>("Success", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PreAuthorize("isAuthenticated()")

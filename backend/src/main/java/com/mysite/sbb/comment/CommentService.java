@@ -49,6 +49,10 @@ public class CommentService {
         return commentRepository.findAllByAuthor(user);
     }
 
+    public List<Comment> getCommentsByQuestion(Question question) {
+        return commentRepository.findAllByQuestion(question);
+    }
+
     public List<Comment> getRecentComments() {
         return commentRepository.findAllOrderByCreateDateLimit(RECENT_PAGE_COUNT);
     }
