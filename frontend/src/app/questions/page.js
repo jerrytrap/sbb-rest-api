@@ -92,13 +92,21 @@ export default function Home() {
         <div className="max-w-7xl mx-auto p-6">
             <div className="flex justify-start space-x-4 mb-6">
                 {isLogin ? (
-                    <a
-                        href="#"
-                        onClick={handleLogout}
-                        className="text-blue-600 hover:text-blue-800 font-semibold"
-                    >
-                        로그아웃
-                    </a>
+                    <div>
+                        <a
+                            href="#"
+                            onClick={handleLogout}
+                            className="text-blue-600 hover:text-blue-800 font-semibold mr-4"
+                        >
+                            로그아웃
+                        </a>
+                        <a
+                            href="/user/info"
+                            className="text-blue-600 hover:text-blue-800 font-semibold"
+                        >
+                            회원정보
+                        </a>
+                    </div>
                 ) : (
                     <div className="space-x-4">
                         <a

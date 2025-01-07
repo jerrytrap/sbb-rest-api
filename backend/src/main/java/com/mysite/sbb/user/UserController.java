@@ -1,6 +1,9 @@
 package com.mysite.sbb.user;
 
+import com.mysite.sbb.answer.AnswerDto;
+import com.mysite.sbb.comment.CommentDto;
 import com.mysite.sbb.global.ResponseDto;
+import com.mysite.sbb.question.QuestionDto;
 import com.mysite.sbb.util.DataNotFoundException;
 import com.mysite.sbb.answer.Answer;
 import com.mysite.sbb.answer.AnswerService;
@@ -8,6 +11,7 @@ import com.mysite.sbb.comment.Comment;
 import com.mysite.sbb.comment.CommentService;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionService;
+import com.mysite.sbb.util.LoginFailException;
 import com.mysite.sbb.util.UserConflictException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -15,15 +19,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RequiredArgsConstructor
@@ -34,7 +41,25 @@ public class UserController {
     private final QuestionService questionService;
     private final AnswerService answerService;
     private final CommentService commentService;
-    private final AuthenticationManager authenticationManager;
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping
+    public ResponseDto<UserResponseDto> getUser(Principal principal) {
+        try {
+            SiteUser siteUser = userService.getUser(principal.getName());
+
+            return new ResponseDto<>(
+                    200,
+                    "success",
+                    new UserResponseDto(
+                            siteUser.getUsername(),
+                            siteUser.getEmail()
+                    )
+            );
+        } catch (Exception e) {
+            throw new LoginFailException(e.getMessage());
+        }
+    }
 
     @PostMapping("/signup")
     public ResponseDto<Void> signup(@RequestBody @Valid UserCreateForm userCreateForm) {
@@ -65,19 +90,52 @@ public class UserController {
         return new ResponseEntity<>("unauthenticated", HttpStatus.UNAUTHORIZED);
     }
 
-    @GetMapping("/info")
-    public String info(Model model, Principal principal) {
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/questions")
+    public List<QuestionDto> getQuestionsByUser(@RequestBody UserRequestDto user, Principal principal) {
+        if (!user.getUsername().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "조회 권한이 없습니다.");
+        }
+
         SiteUser siteUser = userService.getUser(principal.getName());
         List<Question> questionList = questionService.getQuestions(siteUser);
+
+        return questionList
+                .stream()
+                .map(QuestionDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/answers")
+    public List<AnswerDto> getAnswersByUser(@RequestBody UserRequestDto user, Principal principal) {
+        if (!user.getUsername().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "조회 권한이 없습니다.");
+        }
+
+        SiteUser siteUser = userService.getUser(principal.getName());
         List<Answer> answerList = answerService.getAnswers(siteUser);
+
+        return answerList
+                .stream()
+                .map(AnswerDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/comments")
+    public List<CommentDto> getCommentsByUser(@RequestBody UserRequestDto user, Principal principal) {
+        if (!user.getUsername().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "조회 권한이 없습니다.");
+        }
+
+        SiteUser siteUser = userService.getUser(principal.getName());
         List<Comment> commentList = commentService.getComments(siteUser);
 
-        model.addAttribute("user", siteUser);
-        model.addAttribute("question_list", questionList);
-        model.addAttribute("answer_list", answerList);
-        model.addAttribute("comment_list", commentList);
-
-        return "user_info";
+        return commentList
+                .stream()
+                .map(CommentDto::new)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/login/temp_password")

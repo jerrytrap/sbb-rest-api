@@ -14,6 +14,7 @@ public class AnswerDto {
     private LocalDateTime createDate;
     private LocalDateTime modifyDate;
     private String authorName;
+    private Integer questionId;
     private Integer voterCount;
     private List<CommentDto> comments;
 
@@ -23,6 +24,7 @@ public class AnswerDto {
         this.createDate = answer.getCreateDate();
         this.modifyDate = answer.getModifyDate();
         this.authorName = answer.getAuthor().getUsername();
+        this.questionId = answer.getQuestion().getId();
         this.voterCount = answer.voter.size();
         this.comments = answer.getCommentList()
                 .stream()
