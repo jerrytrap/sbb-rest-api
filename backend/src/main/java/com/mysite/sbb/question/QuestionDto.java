@@ -15,6 +15,7 @@ public class QuestionDto {
     private LocalDateTime modifyDate;
     private Integer viewCount;
     private Integer voterCount;
+    private Integer answerCount;
 
     public QuestionDto(Question question) {
         this.id = question.getId();
@@ -26,5 +27,6 @@ public class QuestionDto {
         this.modifyDate = question.getModifyDate();
         this.viewCount = question.getViewCount().intValue();
         this.voterCount = question.getVoter().size();
+        this.answerCount = question.getAnswerList().size();
     }
 }

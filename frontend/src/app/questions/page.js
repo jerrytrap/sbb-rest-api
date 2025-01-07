@@ -113,6 +113,7 @@ export default function Home() {
                             >
                                 {question.subject}
                             </a>
+                            <span className="text-red-500 text-sm ml-2">{question.answerCount}</span>
                         </td>
                         <td className="px-4 py-2">{question.authorName}</td>
                         <td className="px-4 py-2">{new Date(question.createDate).toLocaleDateString()}</td>
