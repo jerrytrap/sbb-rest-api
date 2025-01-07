@@ -1,13 +1,15 @@
 'use client';
 
-import {useRouter} from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 
 export default function QuestionCreateForm() {
     const router = useRouter();
+    const params = useParams();
 
     const submitQuestion = (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
+        formData.append("categoryId", params.id);
 
         fetch("http://localhost:8080/api/v1/questions", {
             method: "POST",

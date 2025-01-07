@@ -36,7 +36,7 @@ public class QuestionController {
     ) {
         Category category = categoryService.getCategory(categoryId);
         Page<Question> paging = questionService.getQuestions(category, page, kw);
-        System.out.println(kw);
+
         return convertPageToDto(paging);
     }
 
@@ -52,7 +52,8 @@ public class QuestionController {
     public ResponseEntity<String> create(@Valid QuestionForm questionForm, Principal principal) {
         try {
             SiteUser siteUser = userService.getUser(principal.getName());
-            questionService.create(new Category(1, "자유"), questionForm.getSubject(), questionForm.getContent(), siteUser);
+            Category category = categoryService.getCategory(questionForm.getCategoryId());
+            questionService.create(category, questionForm.getSubject(), questionForm.getContent(), siteUser);
             return new ResponseEntity<>("Success", HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

@@ -9,15 +9,24 @@ export default function Home() {
     const [totalQuestions, setTotalQuestions] = useState(0);
     const [isLogin, setIsLogin] = useState(false);
     const [keyword, setKeyword] = useState("");
+    const [categories, setCategories] = useState([]);
+    const [category, setCategory] = useState({
+        "id": 1,
+        "name": "질문답변"
+    });
 
     useEffect(() => {
         fetchQuestions();
+    }, [currentPage, category]);
+
+    useEffect(() => {
         checkLogin();
-    }, [currentPage]);
+        fetchCategories();
+    }, [])
 
     const fetchQuestions = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/questions?page=${currentPage}&kw=${keyword}`);
+            const response = await fetch(`http://localhost:8080/api/v1/questions?page=${currentPage}&kw=${keyword}&category_id=${category.id}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch");
             }
@@ -29,6 +38,24 @@ export default function Home() {
             throw new Error("Error fetching data:", error);
         }
     };
+
+    const fetchCategories = async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/v1/categories`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch");
+            }
+            const result = await response.json();
+            setCategories(result);
+        } catch (error) {
+            throw new Error("Error fetching data:", error);
+        }
+    };
+
+    const handleCategoryChange = (e) => {
+        const categoryName = e.target.innerText;
+        setCategory(categories.find(category => category.name === categoryName));
+    }
 
     const handleLogout = async (e) => {
         e.preventDefault();
@@ -90,16 +117,34 @@ export default function Home() {
                 )}
             </div>
 
+            <div className="my-4">
+                <div className="flex flex-wrap gap-2">
+                    {categories.map((c, index) => (
+                        <button
+                            key={index}
+                            onClick={handleCategoryChange}
+                            className={`px-4 py-2 border border-gray-300 rounded-sm text-sm font-medium ${
+                                    category.id === c.id
+                                        ? 'bg-blue-600 text-white disabled:'
+                                        : 'bg-white text-black hover:bg-gray-100'
+                                }`}
+                        >
+                            {c.name}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             <div className="w-full sm:w-1/2 flex justify-between mb-4 mr-4">
                 <a
-                    href="/questions/create"
+                    href={`/questions/create/${category.id}`}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                 >
                     질문 등록하기
                 </a>
 
                 <div className="flex items-center space-x-2">
-                    <input type="text" id="search_kw" value={keyword} onChange={(e) => setKeyword(e.target.value)}
+                <input type="text" id="search_kw" value={keyword} onChange={(e) => setKeyword(e.target.value)}
                            className="w-full sm:w-64 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"/>
                     <button
                         onClick={fetchQuestions}
@@ -142,7 +187,7 @@ export default function Home() {
                 </tbody>
             </table>
 
-            <div className="flex justify-center space-x-2" ㄴ>
+            <div className="flex justify-center space-x-2">
                 {currentPage > 0 && (
                     <button
                         onClick={() => handlePageChange(currentPage - 1)}
