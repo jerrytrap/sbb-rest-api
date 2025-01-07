@@ -40,6 +40,12 @@ public class AnswerController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/{id}")
+    public AnswerDto getAnswer(@PathVariable("id") Integer id) {
+        Answer answer = answerService.getAnswer(id);
+        return new AnswerDto(answer);
+    }
+
     @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<String> create(
@@ -59,32 +65,19 @@ public class AnswerController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/modify/{id}")
-    public String modify(AnswerForm answerForm, @PathVariable("id") Integer id, Principal principal) {
-        Answer answer = answerService.getAnswer(id);
+    @PatchMapping
+    public ResponseEntity<String> modify(@RequestBody @Valid AnswerForm answerForm, @RequestParam("id") Integer id, Principal principal) {
+        try {
+            Answer answer = answerService.getAnswer(id);
+            if (!answer.getAuthor().getUsername().equals(principal.getName())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+            }
 
-        if (!answer.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+            answerService.modify(answer, answerForm.getContent());
+            return new ResponseEntity<>("Success", HttpStatus.OK);
+        } catch (Exception e ) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-
-        answerForm.setContent(answer.getContent());
-        return "answer_form";
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping("/modify/{id}")
-    public String modify(@Valid AnswerForm answerForm, BindingResult bindingResult, @PathVariable("id") Integer id, Principal principal) {
-        if (bindingResult.hasErrors()) {
-            return "answer_form";
-        }
-
-        Answer answer = answerService.getAnswer(id);
-        if (!answer.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
-        }
-
-        answerService.modify(answer, answerForm.getContent());
-        return String.format("redirect:/question/detail/%s#answer_%s", answer.getQuestion().getId(), answer.getId());
     }
 
     @PreAuthorize("isAuthenticated()")

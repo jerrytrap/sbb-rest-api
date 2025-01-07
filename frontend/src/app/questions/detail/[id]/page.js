@@ -169,14 +169,16 @@ export default function QuestionDetail() {
                                 <span
                                     className="badge rounded-full bg-green-500 text-white ml-2">{answer.voterCount}</span>
                             </button>
-                            {answer.author && answer.author.username === username && (
+                            {answer.authorName === username && (
                                 <>
-                                    <button className="btn btn-sm btn-outline-secondary">
+                                    <a href={`/answers/modify/${answer.id}`}
+                                       className="px-4 py-2 text-sm text-blue-600 border border-blue-600 hover:bg-blue-100 rounded-md">
                                         수정
-                                    </button>
-                                    <button className="delete btn btn-sm btn-outline-secondary">
+                                    </a>
+                                    <a href="#"
+                                       className="px-4 py-2 text-sm text-red-600 border border-red-600 hover:bg-red-100 rounded-md">
                                         삭제
-                                    </button>
+                                    </a>
                                 </>
                             )}
                         </div>
