@@ -75,7 +75,7 @@ public class AnswerController {
 
             answerService.modify(answer, answerForm.getContent());
             return new ResponseEntity<>("Success", HttpStatus.OK);
-        } catch (Exception e ) {
+        } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }

@@ -220,7 +220,7 @@ export default function QuestionDetail() {
                                                 className="text-xs text-gray-500 ml-2">{new Date(comment.createDate).toLocaleString()}</span>
                                         </div>
                                         <div className="space-x-2">
-                                            <a href=""
+                                            <a href={`/comments/modify/${comment.id}`}
                                                className="px-4 py-2 text-sm text-blue-600 border border-blue-600 hover:bg-blue-100 rounded-md">
                                                 수정
                                             </a>
@@ -311,7 +311,7 @@ export default function QuestionDetail() {
                                                     className="text-xs text-gray-500 ml-2">{new Date(comment.createDate).toLocaleString()}</span>
                                             </div>
                                             <div className="space-x-2">
-                                                <a href=""
+                                                <a href={`/comments/modify/${comment.id}`}
                                                    className="px-4 py-2 text-sm text-blue-600 border border-blue-600 hover:bg-blue-100 rounded-md">
                                                     수정
                                                 </a>

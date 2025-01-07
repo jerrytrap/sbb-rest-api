@@ -31,6 +31,12 @@ public class CommentController {
     private final QuestionService questionService;
     private final UserService userService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<String> getComment(@PathVariable Integer id) {
+        Comment comment = commentService.getComment(id);
+        return new ResponseEntity<>(comment.getContent(), HttpStatus.OK);
+    }
+
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/question")
     public ResponseEntity<String> createQuestionComment(
@@ -66,32 +72,19 @@ public class CommentController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/modify/{id}")
-    public String modify(@Valid CommentForm commentForm, BindingResult bindingResult, @PathVariable("id") Integer id, Principal principal) {
-        if (bindingResult.hasErrors()) {
-            return "comment_form";
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> modify(@RequestBody @Valid CommentForm commentForm, @PathVariable("id") Integer id, Principal principal) {
+        try {
+            Comment comment = commentService.getComment(id);
+            if (!comment.getAuthor().getUsername().equals(principal.getName())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+            }
+
+            commentService.modify(comment, commentForm.getContent());
+            return new ResponseEntity<>("Success", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-
-        Comment comment = commentService.getComment(id);
-        if (!comment.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
-        }
-
-        commentService.modify(comment, commentForm.getContent());
-        return String.format("redirect:/question/detail/%s", comment.getQuestion().getId());
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/modify/{id}")
-    public String modify(CommentForm commentForm, @PathVariable("id") Integer id, Principal principal) {
-        Comment comment = commentService.getComment(id);
-
-        if (!comment.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
-        }
-
-        commentForm.setContent(comment.getContent());
-        return "comment_form";
     }
 
     @PreAuthorize("isAuthenticated()")
