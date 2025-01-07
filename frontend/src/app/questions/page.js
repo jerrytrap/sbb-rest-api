@@ -4,19 +4,22 @@ import { useRouter } from "next/navigation";
 
 export default function Home() {
     const router = useRouter();
+    const [currentPage, setCurrentPage] = useState(0);
     const [questions, setQuestions] = useState([]);
+    const [totalQuestions, setTotalQuestions] = useState(0);
     const [isLogin, setIsLogin] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const defaultCategoryId = 1;
-                const response = await fetch("http://localhost:8080/api/v1/questions");
+                const response = await fetch(`http://localhost:8080/api/v1/questions?page=${currentPage}`);
                 if (!response.ok) {
                     throw new Error("Failed to fetch");
                 }
                 const result = await response.json();
-                setQuestions(result);
+
+                setQuestions(result.content);
+                setTotalQuestions(result.totalPages);
             } catch (error) {
                 throw new Error("Error fetching data:", error);
             }
@@ -24,7 +27,7 @@ export default function Home() {
 
         fetchData();
         checkLogin();
-    }, []);
+    }, [currentPage]);
 
     const handleLogout = async (e) => {
         e.preventDefault();
@@ -51,6 +54,10 @@ export default function Home() {
     const showDetail = (e, question) => {
         e.preventDefault();
         router.push(`/questions/detail/${question.id}`)
+    }
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page)
     }
 
     return (
@@ -122,6 +129,32 @@ export default function Home() {
                 ))}
                 </tbody>
             </table>
+
+            <div className="flex justify-center space-x-2"ㄴ>
+                {currentPage > 0 && (
+                    <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        className="px-4 py-2 text-sm font-medium border rounded-md hover:bg-gray-200 opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                    >이전</button>
+                )}
+
+                {[...Array(totalQuestions)].map((_, index) => (
+                    <button
+                        key={index}
+                        onClick={() => handlePageChange(index)}
+                        className={`px-4 py-2 text-sm font-medium border rounded-md hover:bg-gray-200 ${index === currentPage ? 'bg-blue-500 text-white' : 'text-gray-700'}`}
+                    >
+                        {index + 1}
+                    </button>
+                ))}
+
+                {currentPage + 1 < totalQuestions && (
+                    <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        className="px-4 py-2 text-sm font-medium border rounded-md hover:bg-gray-200 opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                    >다음</button>
+                )}
+            </div>
         </div>
     );
 }

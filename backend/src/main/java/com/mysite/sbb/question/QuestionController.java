@@ -8,6 +8,7 @@ import com.mysite.sbb.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,7 +29,7 @@ public class QuestionController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<QuestionDto> getQuestions(
+    public Page<QuestionDto> getQuestions(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "kw", defaultValue = "") String kw,
             @RequestParam(value = "category_id", defaultValue = "1") Integer categoryId
@@ -36,9 +37,7 @@ public class QuestionController {
         Category category = categoryService.getCategory(categoryId);
         Page<Question> paging = questionService.getQuestions(category, page, kw);
 
-        return paging.stream()
-                .map(QuestionDto::new)
-                .collect(Collectors.toList());
+        return convertPageToDto(paging);
     }
 
     @GetMapping("/{id}")
@@ -100,5 +99,13 @@ public class QuestionController {
         questionService.vote(question, siteUser);
 
         return new ResponseEntity<>("Success", HttpStatus.OK);
+    }
+
+    private Page<QuestionDto> convertPageToDto(Page<Question> questionPage) {
+        List<QuestionDto> questionDtos = questionPage.getContent().stream()
+                .map(QuestionDto::new)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(questionDtos, questionPage.getPageable(), questionPage.getTotalElements());
     }
 }
