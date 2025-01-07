@@ -1,8 +1,11 @@
 package com.mysite.sbb.question;
 
+import com.mysite.sbb.comment.CommentDto;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class QuestionDto {
@@ -16,6 +19,7 @@ public class QuestionDto {
     private Integer viewCount;
     private Integer voterCount;
     private Integer answerCount;
+    private List<CommentDto> comments;
 
     public QuestionDto(Question question) {
         this.id = question.getId();
@@ -28,5 +32,9 @@ public class QuestionDto {
         this.viewCount = question.getViewCount().intValue();
         this.voterCount = question.getVoter().size();
         this.answerCount = question.getAnswerList().size();
+        this.comments = question.getCommentList()
+                .stream()
+                .map(CommentDto::new)
+                .collect(Collectors.toList());
     }
 }

@@ -31,17 +31,8 @@ public class CommentController {
     private final QuestionService questionService;
     private final UserService userService;
 
-    @GetMapping("/question")
-    public List<CommentDto> getQuestionComment(@RequestParam("question_id") Integer questionId) {
-        Question question = questionService.getQuestion(questionId);
-        return commentService.getCommentsByQuestion(question)
-                .stream()
-                .map(CommentDto::new)
-                .collect(Collectors.toList());
-    }
-
     @PreAuthorize("isAuthenticated()")
-    @PostMapping
+    @PostMapping("/question")
     public ResponseEntity<String> createQuestionComment(
             @RequestBody @Valid CommentForm commentForm,
             Principal principal
@@ -58,17 +49,20 @@ public class CommentController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/create/answer/{id}")
-    public String createAnswerComment(
-            @ModelAttribute CommentForm commentForm,
-            @PathVariable Integer id,
+    @PostMapping("/answer")
+    public ResponseEntity<String> createAnswerComment(
+            @RequestBody @Valid CommentForm commentForm,
             Principal principal
     ) {
-        Answer answer = answerService.getAnswer(commentForm.getAnswerId());
-        SiteUser siteUser = userService.getUser(principal.getName());
+        try {
+            Answer answer = answerService.getAnswer(commentForm.getAnswerId());
+            SiteUser siteUser = userService.getUser(principal.getName());
 
-        commentService.createComment(commentForm.getContent(), answer, siteUser);
-        return "redirect:/question/detail/%s".formatted(id);
+            commentService.createComment(commentForm.getContent(), answer, siteUser);
+            return new ResponseEntity<>("Success", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PreAuthorize("isAuthenticated()")
