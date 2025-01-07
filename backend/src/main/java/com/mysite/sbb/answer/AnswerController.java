@@ -1,12 +1,14 @@
 package com.mysite.sbb.answer;
 
 import com.mysite.sbb.question.Question;
+import com.mysite.sbb.question.QuestionDto;
 import com.mysite.sbb.question.QuestionService;
 import com.mysite.sbb.user.SiteUser;
 import com.mysite.sbb.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,15 +31,15 @@ public class AnswerController {
     private final UserService userService;
 
     @GetMapping
-    public List<AnswerDto> getAnswers(
-            @RequestParam("question_id") Integer questionId
+    public Page<AnswerDto> getAnswers(
+            @RequestParam("question_id") Integer questionId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "sort", defaultValue = "createDate") String sort
     ) {
         Question question = questionService.getQuestion(questionId);
-        List<Answer> answers = answerService.getAnswers(question);
+        Page<Answer> answers = answerService.getAnswers(question, page, sort);
 
-        return answers.stream()
-                .map(AnswerDto::new)
-                .collect(Collectors.toList());
+        return convertPageToDto(answers);
     }
 
     @GetMapping("/{id}")
@@ -112,5 +114,13 @@ public class AnswerController {
         model.addAttribute("answer_list", answers);
 
         return "answer_recent";
+    }
+
+    private Page<AnswerDto> convertPageToDto(Page<Answer> answerPage) {
+        List<AnswerDto> answerDtos = answerPage.getContent().stream()
+                .map(AnswerDto::new)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(answerDtos, answerPage.getPageable(), answerPage.getTotalElements());
     }
 }

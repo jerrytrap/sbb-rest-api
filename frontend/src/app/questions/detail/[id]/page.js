@@ -9,12 +9,19 @@ export default function QuestionDetail() {
     const [username, setUsername] = useState("");
     const [answerContent, setAnswerContent] = useState("");
     const [answers, setAnswers] = useState([]);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalAnswers, setTotalAnswers] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
 
     useEffect(() => {
         fetchQuestion();
         fetchAnswers();
         getUsername();
     }, []);
+
+    useEffect(() => {
+        fetchAnswers();
+    }, [currentPage]);
 
     const fetchQuestion = async () => {
         try {
@@ -118,14 +125,20 @@ export default function QuestionDetail() {
         });
     }
 
-    const fetchAnswers = () => {
-        fetch("http://localhost:8080/api/v1/answers?question_id=" + params.id, {
-            method: 'GET',
-        }).then((result) =>
-            result.json()
-        ).then((data) => {
-            setAnswers(data);
-        });
+    const fetchAnswers = async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/v1/answers?question_id=${params.id}&page=${currentPage}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch");
+            }
+            const result = await response.json();
+
+            setAnswers(result.content);
+            setTotalPages(result.totalPages);
+            setTotalAnswers(result.totalElements);
+        } catch (error) {
+            throw new Error("Error fetching data:", error);
+        }
     }
 
     const createAnswer = (e) => {
@@ -185,6 +198,10 @@ export default function QuestionDetail() {
                 fetchAnswers();
             }
         });
+    }
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page)
     }
 
     return (
@@ -276,7 +293,7 @@ export default function QuestionDetail() {
                 </div>
             </div>
 
-            <h5 className="border-bottom my-3 py-2">{answers.length + "개의 답변이 있습니다."}</h5>
+            <h5 className="border-bottom my-3 py-2">{totalAnswers + "개의 답변이 있습니다."}</h5>
 
             {answers.map((answer) => (
                 <div key={answer.id} className="card my-3">
@@ -367,6 +384,32 @@ export default function QuestionDetail() {
                     </div>
                 </div>
             ))}
+
+            <div className="flex justify-center space-x-2">
+                {currentPage > 0 && (
+                    <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        className="px-4 py-2 text-sm font-medium border rounded-md hover:bg-gray-200 opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                    >이전</button>
+                )}
+
+                {[...Array(totalPages)].map((_, index) => (
+                    <button
+                        key={index}
+                        onClick={() => handlePageChange(index)}
+                        className={`px-4 py-2 text-sm font-medium border rounded-md hover:bg-gray-200 ${index === currentPage ? 'bg-blue-500 text-white' : 'text-gray-700'}`}
+                    >
+                        {index + 1}
+                    </button>
+                ))}
+
+                {currentPage + 1 < totalPages && (
+                    <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        className="px-4 py-2 text-sm font-medium border rounded-md hover:bg-gray-200 opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                    >다음</button>
+                )}
+            </div>
 
             <div className="my-3">
                 <form onSubmit={createAnswer}>
