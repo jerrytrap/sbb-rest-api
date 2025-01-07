@@ -88,21 +88,19 @@ public class CommentController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Integer id, Principal principal, HttpServletRequest request) {
-        Comment comment = commentService.getComment(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable Integer id, Principal principal) {
+        try {
+            Comment comment = commentService.getComment(id);
 
-        if (!comment.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
+            if (!comment.getAuthor().getUsername().equals(principal.getName())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
+            }
+            commentService.delete(comment);
+            return new ResponseEntity<>("Success", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        commentService.delete(comment);
-
-        String referer = request.getHeader("Referer");
-        if (referer != null && !referer.isEmpty()) {
-            return "redirect:" + referer;
-        }
-
-        return "redirect:/";
     }
 
     @GetMapping("/recent")
