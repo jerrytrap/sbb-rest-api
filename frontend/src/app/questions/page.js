@@ -126,23 +126,38 @@ export default function Home() {
             </div>
 
             <div className="my-4">
-                <div className="flex flex-wrap gap-2">
-                    {categories.map((c, index) => (
-                        <button
-                            key={index}
-                            onClick={handleCategoryChange}
-                            className={`px-4 py-2 border border-gray-300 rounded-sm text-sm font-medium ${
+                <div className="flex justify-between items-center">
+                    <div className="flex flex-wrap gap-2">
+                        {categories.map((c, index) => (
+                            <button
+                                key={index}
+                                onClick={handleCategoryChange}
+                                className={`px-4 py-2 border border-gray-300 rounded-sm text-sm font-medium ${
                                     category.id === c.id
                                         ? 'bg-blue-600 text-white disabled:'
                                         : 'bg-white text-black hover:bg-gray-100'
                                 }`}
+                            >
+                                {c.name}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="space-x-4">
+                        <a
+                            href="/answers/recent"
+                            className="text-blue-600 hover:text-blue-800 font-semibold"
                         >
-                            {c.name}
-                        </button>
-                    ))}
+                            최근 답변
+                        </a>
+                        <a
+                            href="/comments/recent"
+                            className="text-blue-600 hover:text-blue-800 font-semibold"
+                        >
+                            최근 댓글
+                        </a>
+                    </div>
                 </div>
             </div>
-
             <div className="w-full sm:w-1/2 flex justify-between mb-4 mr-4">
                 <a
                     href={`/questions/create/${category.id}`}

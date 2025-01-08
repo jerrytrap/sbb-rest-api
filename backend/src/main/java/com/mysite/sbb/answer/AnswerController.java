@@ -109,11 +109,15 @@ public class AnswerController {
     }
 
     @GetMapping("/recent")
-    public String recent(Model model) {
+    public ResponseEntity<List<AnswerDto>> recent() {
         List<Answer> answers = answerService.getRecentAnswers();
-        model.addAttribute("answer_list", answers);
 
-        return "answer_recent";
+        return new ResponseEntity<>(
+                answers.stream()
+                        .map(AnswerDto::new)
+                        .collect(Collectors.toList()),
+                HttpStatus.OK
+        );
     }
 
     private Page<AnswerDto> convertPageToDto(Page<Answer> answerPage) {

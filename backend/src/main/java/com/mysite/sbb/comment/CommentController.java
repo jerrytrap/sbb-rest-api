@@ -1,6 +1,7 @@
 package com.mysite.sbb.comment;
 
 import com.mysite.sbb.answer.Answer;
+import com.mysite.sbb.answer.AnswerDto;
 import com.mysite.sbb.answer.AnswerService;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionService;
@@ -104,10 +105,14 @@ public class CommentController {
     }
 
     @GetMapping("/recent")
-    public String recent(Model model) {
+    public ResponseEntity<List<CommentDto>> recent() {
         List<Comment> comments = commentService.getRecentComments();
-        model.addAttribute("comment_list", comments);
 
-        return "comment_recent";
+        return new ResponseEntity<>(
+                comments.stream()
+                        .map(CommentDto::new)
+                        .collect(Collectors.toList()),
+                HttpStatus.OK
+        );
     }
 }
