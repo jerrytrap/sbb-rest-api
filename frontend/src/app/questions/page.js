@@ -204,7 +204,7 @@ export default function Home() {
                         </td>
                         <td className="px-4 py-2">{question.authorName}</td>
                         <td className="px-4 py-2">{new Date(question.createDate).toLocaleDateString()}</td>
-                        <td className="px-4 py-2">{question.voterCount}</td>
+                        <td className="px-4 py-2">{question.viewCount}</td>
                     </tr>
                 ))}
                 </tbody>

@@ -43,6 +43,7 @@ public class QuestionController {
     @GetMapping("/{id}")
     public QuestionDto getQuestion(@PathVariable Integer id) {
         Question question = questionService.getQuestion(id);
+        questionService.viewQuestion(question);
 
         return new QuestionDto(question);
     }
