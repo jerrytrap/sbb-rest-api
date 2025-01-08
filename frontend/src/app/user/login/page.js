@@ -59,7 +59,7 @@ export default function Login() {
             </form>
 
             <div className="mt-4 text-center">
-                <span className="text-sm text-blue-500 hover:underline"><a href="">비밀번호를 분실했어요.</a></span>
+                <span className="text-sm text-blue-500 hover:underline"><a href="/user/find_password">비밀번호를 분실했어요.</a></span>
             </div>
         </div>
     );

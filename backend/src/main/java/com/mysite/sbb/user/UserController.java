@@ -138,22 +138,15 @@ public class UserController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/login/temp_password")
-    public String tempPassword() {
-        return "email_check_form";
-    }
-
-    @PostMapping("/login/temp_password")
-    public String tempPassword(Model model, String email) {
+    @PostMapping("/email")
+    public ResponseEntity<String> getTempPassword(@RequestBody EmailRequestDto emailDto) {
         try {
-            SiteUser user = userService.getUserByEmail(email);
+            SiteUser user = userService.getUserByEmail(emailDto.getEmail());
             userService.sendTemporaryPassword(user);
+            return new ResponseEntity<>("success", HttpStatus.OK);
         } catch (DataNotFoundException e) {
-            model.addAttribute("error", "등록되지 않은 사용자입니다.");
-            return "email_check_form";
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-
-        return "redirect:/user/login";
     }
 
     @GetMapping("/password_change")
