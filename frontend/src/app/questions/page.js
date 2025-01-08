@@ -121,6 +121,12 @@ export default function Home() {
                         >
                             로그인
                         </a>
+                        <a
+                            href="http://localhost:8080/oauth2/authorization/google"
+                            className="text-blue-600 hover:text-blue-800 font-semibold"
+                        >
+                            구글로그인
+                        </a>
                     </div>
                 )}
             </div>

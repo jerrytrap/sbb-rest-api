@@ -1,5 +1,6 @@
 package com.mysite.sbb.user;
 
+import com.mysite.sbb.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -11,6 +12,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -34,10 +36,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             userRepository.save(siteUser);
         }
 
-        return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(UserRole.USER.getValue())),
-                oAuth2User.getAttributes(),
-                "name"
+        return new SecurityUser(
+                user.get().getId(),
+                user.get().getUsername(),
+                "",
+                List.of()
         );
     }
 }

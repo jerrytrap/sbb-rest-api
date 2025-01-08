@@ -37,6 +37,11 @@ public class SecurityConfig {
                         httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource())
         ).headers((headers) ->
                 headers.addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
+        ).oauth2Login(oauth2Login ->
+                oauth2Login
+                        .successHandler((request, response, authentication) -> {
+                            response.sendRedirect("http://localhost:3000");
+                        })
         ).formLogin(formLogin ->
                 formLogin.loginPage("http://localhost:3000/user/login")
                         .loginProcessingUrl("/api/login")
