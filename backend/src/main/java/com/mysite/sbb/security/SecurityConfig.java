@@ -36,7 +36,11 @@ public class SecurityConfig {
         ).cors(httpSecurityCorsConfigurer ->
                         httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource())
         ).headers((headers) ->
-                headers.addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
+                headers.addHeaderWriter((request, response) -> {
+                            response.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+                            response.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+                        })
+                        .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
         ).formLogin(formLogin ->
                 formLogin.loginPage("http://localhost:3000/user/login")
                         .loginProcessingUrl("/api/login")
@@ -47,6 +51,15 @@ public class SecurityConfig {
                             response.setStatus(400);
                         })
                         .permitAll()
+        ).oauth2Login((oauth2Login) ->
+                        oauth2Login
+                                .loginPage("http://localhost:3000/user/login")
+                                .successHandler((request, response, authentication) -> {
+                                    response.setStatus(200);
+                                })
+                                .failureHandler((request, response, authentication) -> {
+                                    response.setStatus(400);
+                                })
         ).logout(logout ->
                 logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))

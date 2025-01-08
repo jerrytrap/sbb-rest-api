@@ -23,6 +23,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -79,6 +81,8 @@ public class UserController {
     @GetMapping("/status")
     public ResponseEntity<String> checkLogin(HttpSession session) {
         SecurityContext securityContext = (SecurityContext) session.getAttribute("SPRING_SECURITY_CONTEXT");
+
+        System.out.println(SecurityContextHolder.getContext().getAuthentication());
 
         if (securityContext != null) {
             Authentication authentication = securityContext.getAuthentication();
