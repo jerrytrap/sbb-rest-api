@@ -105,7 +105,7 @@ export default function UserInfo() {
                 </ul>
             </div>
             <div>
-                <a href="" className="text-blue-500 hover:underline">비밀번호 변경</a>
+                <a href="/user/password_change" className="text-blue-500 hover:underline">비밀번호 변경</a>
             </div>
 
             <h5 className="my-3 border-b pb-2 text-lg font-semibold">내가 질문한 글</h5>

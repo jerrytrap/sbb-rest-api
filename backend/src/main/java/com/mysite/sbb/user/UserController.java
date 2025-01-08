@@ -149,25 +149,16 @@ public class UserController {
         }
     }
 
-    @GetMapping("/password_change")
-    public String passwordChange() {
-        return "password_change_form";
-    }
-
     @PostMapping("/password_change")
-    public String passwordChange(
-            Model model,
-            @RequestParam("old_password") String oldPassword,
-            @RequestParam("new_password") String newPassword,
+    public ResponseEntity<String> passwordChange(
+            @RequestBody PasswordRequestDto passwordRequestDto,
             Principal principal) {
         try {
             SiteUser user = userService.getUser(principal.getName());
-            userService.changePassword(user, oldPassword, newPassword);
-        } catch (InputMismatchException e) {
-            model.addAttribute("error", "현재 비밀번호를 다시 입력해주세요.");
-            return "password_change_form";
+            userService.changePassword(user, passwordRequestDto.getCurrentPassword(), passwordRequestDto.getNewPassword());
+            return new ResponseEntity<>("success", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-
-        return "redirect:/";
     }
 }
