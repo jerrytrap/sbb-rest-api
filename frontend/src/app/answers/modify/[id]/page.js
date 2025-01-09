@@ -48,7 +48,7 @@ export default function QuestionModifyForm() {
                 throw new Error("Failed to fetch");
             }
             const result = await response.json();
-            simpleMde.current.value(result.content);
+            simpleMde.current.value(result.data.content);
         } catch (error) {
             throw new Error("Error fetching data:", error);
         }

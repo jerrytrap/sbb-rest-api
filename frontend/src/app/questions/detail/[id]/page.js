@@ -10,7 +10,7 @@ export default function QuestionDetail() {
     const params = useParams();
     const router = useRouter();
     const [question, setQuestion] = useState({"comments": []});
-    const [username, setUsername] = useState("");
+    const [username, setUsername] = useState();
     const [answerContent, setAnswerContent] = useState("");
     const [answers, setAnswers] = useState([]);
     const [totalPages, setTotalPages] = useState(0);
@@ -21,17 +21,17 @@ export default function QuestionDetail() {
     const simpleMde = useRef(null);
 
     useEffect(() => {
-        simpleMde.current = new SimpleMDE({
-            element: editorRef.current,
-            spellChecker: false,
-            minHeight: '300px',
-        });
-    }, []);
-
-    useEffect(() => {
+        getUsername();
         fetchQuestion();
         fetchAnswers();
-        getUsername();
+
+        if(simpleMde.current === null) {
+            simpleMde.current = new SimpleMDE({
+                element: editorRef.current,
+                spellChecker: false,
+                minHeight: '300px',
+            });
+        }
     }, []);
 
     useEffect(() => {
@@ -143,14 +143,11 @@ export default function QuestionDetail() {
     const fetchAnswers = async () => {
         try {
             const response = await fetch(`http://localhost:8080/api/v1/answers?question_id=${params.id}&page=${currentPage}&sort=${order}`);
-            if (!response.ok) {
-                throw new Error("Failed to fetch");
-            }
             const result = await response.json();
 
-            setAnswers(result.content);
-            setTotalPages(result.totalPages);
-            setTotalAnswers(result.totalElements);
+            setAnswers(result.data.content);
+            setTotalPages(result.data.totalPages);
+            setTotalAnswers(result.data.totalElements);
         } catch (error) {
             throw new Error("Error fetching data:", error);
         }
@@ -447,9 +444,8 @@ export default function QuestionDetail() {
                     <div className="mb-3">
                         <textarea
                             ref={editorRef}
-                            className="form-control w-full p-3 border rounded-md"
+                            className="w-full p-3 border rounded-md"
                             placeholder={username !== "" ? '답변을 작성하세요' : '로그인이 필요합니다.'}
-                            disabled={username === ""}
                         />
                     </div>
 

@@ -52,18 +52,23 @@ public class QuestionController {
         SiteUser siteUser = userService.getUser(principal.getName());
         Category category = categoryService.getCategory(questionForm.getCategoryId());
         questionService.create(category, questionForm.getSubject(), questionForm.getContent(), siteUser);
+
         return new ResponseDto<>(HttpStatus.CREATED.value(), "질문 생성 완료");
     }
 
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}")
-    public ResponseDto<Void> modifyQuestion(@RequestBody @Valid QuestionForm questionForm, Principal principal, @PathVariable("id") Integer id) {
+    public ResponseDto<Void> modifyQuestion(
+            @RequestBody @Valid QuestionForm questionForm,
+            Principal principal,
+            @PathVariable("id") Integer id
+    ) {
         Question question = questionService.getQuestion(id);
         if (!question.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "수정 권한이 없습니다.");
         }
-
         questionService.modify(question, questionForm.getSubject(), questionForm.getContent());
+
         return new ResponseDto<>(HttpStatus.OK.value(), "질문 수정 완료");
     }
 

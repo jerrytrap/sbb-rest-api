@@ -18,7 +18,7 @@ export default function RecentAnswers() {
             }
 
             const result = await response.json();
-            setRecentAnswers(result);
+            setRecentAnswers(result.data);
         } catch (error) {
             console.error("Error fetching data:", error);
         }
