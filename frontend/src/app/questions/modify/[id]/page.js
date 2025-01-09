@@ -8,12 +8,12 @@ import 'simplemde/dist/simplemde.min.css';
 export default function QuestionModifyForm() {
     const params = useParams();
     const router = useRouter();
+    const editorRef = useRef(null);
+    const simpleMde = useRef(null);
     const [formData, setFormData] = useState({
         subject: '',
         content: ''
     });
-    const editorRef = useRef(null);
-    const simpleMde = useRef(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -42,12 +42,14 @@ export default function QuestionModifyForm() {
 
         fetch("http://localhost:8080/api/v1/questions/" + params.id, {
             method: "PATCH",
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(updatedData),
             credentials: 'include'
         }).then((response) => {
             if (response.status === 200) {
-                router.replace("/");
+                router.replace("/questions/detail/" + params.id);
             } else if (response.status === 401) {
                 router.replace("/user/login");
             }
@@ -61,11 +63,12 @@ export default function QuestionModifyForm() {
                 throw new Error("Failed to fetch");
             }
             const result = await response.json();
+
             setFormData({
-                subject: result.subject,
-                content: result.content
+                subject: result.data.subject,
+                content: result.data.content
             })
-            simpleMde.current.value(result.content);
+            simpleMde.current.value(result.data.content);
         } catch (error) {
             throw new Error("Error fetching data:", error);
         }

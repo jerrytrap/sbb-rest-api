@@ -27,13 +27,10 @@ export default function Home() {
     const fetchQuestions = async () => {
         try {
             const response = await fetch(`http://localhost:8080/api/v1/questions?page=${currentPage}&kw=${keyword}&category_id=${category.id}`);
-            if (!response.ok) {
-                throw new Error("Failed to fetch");
-            }
             const result = await response.json();
 
-            setQuestions(result.content);
-            setTotalQuestions(result.totalPages);
+            setQuestions(result.data.content);
+            setTotalQuestions(result.data.totalPages);
         } catch (error) {
             throw new Error("Error fetching data:", error);
         }

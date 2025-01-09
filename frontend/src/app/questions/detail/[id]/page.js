@@ -41,11 +41,9 @@ export default function QuestionDetail() {
     const fetchQuestion = async () => {
         try {
             const response = await fetch("http://localhost:8080/api/v1/questions/" + params.id);
-            if (!response.ok) {
-                throw new Error("Failed to fetch");
-            }
             const result = await response.json();
-            setQuestion(result);
+
+            setQuestion(result.data);
         } catch (error) {
             throw new Error("Error fetching data:", error);
         }
@@ -72,9 +70,11 @@ export default function QuestionDetail() {
             fetch("http://localhost:8080/api/v1/questions/" + params.id, {
                 method: 'DELETE',
                 credentials: 'include'
-            }).then((result) => {
-                if (result.status === 200) {
-                    router.replace("/");
+            }).then((response) => {
+                if (response.status === 200) {
+                    router.replace("/questions/detail/" + params.id);
+                } else if (response.status === 401) {
+                    router.replace("/user/login");
                 }
             });
         }
@@ -121,8 +121,8 @@ export default function QuestionDetail() {
         fetch("http://localhost:8080/api/v1/questions/vote/" + params.id, {
             method: 'GET',
             credentials: 'include'
-        }).then((result) => {
-            if (result.status === 200) {
+        }).then((response) => {
+            if (response.status === 200) {
                 fetchQuestion();
             }
         });
