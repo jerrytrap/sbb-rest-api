@@ -45,7 +45,7 @@ export default function Home() {
         throw new Error("Failed to fetch");
       }
       const result = await response.json();
-      setCategories(result);
+      setCategories(result.data);
     } catch (error) {
       throw new Error("Error fetching data:", error);
     }

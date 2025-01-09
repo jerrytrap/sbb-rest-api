@@ -1,5 +1,6 @@
 package com.mysite.sbb.category;
 
+import com.mysite.sbb.global.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,11 +16,13 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<CategoryDto> getAllCategories() {
-        return categoryService
-                .getAllCategories()
-                .stream()
-                .map(CategoryDto::new)
-                .collect(Collectors.toList());
+    public ResponseDto<List<CategoryDto>> getAllCategories() {
+        return new ResponseDto<>(
+                categoryService
+                        .getAllCategories()
+                        .stream()
+                        .map(CategoryDto::new)
+                        .collect(Collectors.toList())
+        );
     }
 }
