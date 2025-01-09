@@ -1,5 +1,7 @@
 package com.mysite.sbb.answer;
 
+import com.mysite.sbb.comment.CommentForm;
+import com.mysite.sbb.comment.CommentService;
 import com.mysite.sbb.global.ResponseDto;
 import com.mysite.sbb.question.Question;
 import com.mysite.sbb.question.QuestionService;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 public class AnswerController {
     private final QuestionService questionService;
     private final AnswerService answerService;
+    private final CommentService commentService;
     private final UserService userService;
 
     @GetMapping
@@ -88,7 +91,7 @@ public class AnswerController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/vote/{id}")
-    public ResponseDto<Void> vote(Principal principal, @PathVariable("id") Integer id) {
+    public ResponseDto<Void> voteAnswer(Principal principal, @PathVariable("id") Integer id) {
         Answer answer = answerService.getAnswer(id);
         SiteUser siteUser = userService.getUser(principal.getName());
         answerService.vote(answer, siteUser);
@@ -105,6 +108,16 @@ public class AnswerController {
                         .map(AnswerDto::new)
                         .collect(Collectors.toList())
         );
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/comment")
+    public ResponseDto<Void> createAnswerComment(@RequestBody @Valid CommentForm commentForm, Principal principal) {
+        Answer answer = answerService.getAnswer(commentForm.getAnswerId());
+        SiteUser siteUser = userService.getUser(principal.getName());
+
+        commentService.createComment(commentForm.getContent(), answer, siteUser);
+        return new ResponseDto<>(HttpStatus.CREATED.value(), "댓글 생성 완료");
     }
 
     private Page<AnswerDto> convertPageToDto(Page<Answer> answerPage) {

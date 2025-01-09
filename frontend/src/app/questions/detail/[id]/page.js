@@ -11,7 +11,6 @@ export default function QuestionDetail() {
     const router = useRouter();
     const [question, setQuestion] = useState({"comments": []});
     const [username, setUsername] = useState();
-    const [answerContent, setAnswerContent] = useState("");
     const [answers, setAnswers] = useState([]);
     const [totalPages, setTotalPages] = useState(0);
     const [totalAnswers, setTotalAnswers] = useState(0);
@@ -89,7 +88,9 @@ export default function QuestionDetail() {
                 method: 'DELETE',
                 credentials: 'include'
             }).then((result) => {
-                if (result.status === 200) {
+                return result.json();
+            }).then((data) => {
+                if (data.code === 200) {
                     fetchAnswers();
                 }
             });
@@ -101,11 +102,13 @@ export default function QuestionDetail() {
         const isConfirmed = confirm("정말 삭제하시겠습니까?");
 
         if (isConfirmed) {
-            fetch("http://localhost:8080/api/v1/comment/" + id, {
+            fetch("http://localhost:8080/api/v1/comments/" + id, {
                 method: 'DELETE',
                 credentials: 'include'
-            }).then((result) => {
-                if (result.status === 200) {
+            }).then((response) => {
+                return response.json();
+            }).then((data) => {
+                if (data.code === 200) {
                     if (type === "question") {
                         fetchQuestion();
                     } else if (type === "answer") {
@@ -122,7 +125,9 @@ export default function QuestionDetail() {
             method: 'GET',
             credentials: 'include'
         }).then((response) => {
-            if (response.status === 200) {
+            return response.json();
+        }).then((data) => {
+            if (data.code === 200) {
                 fetchQuestion();
             }
         });
@@ -133,8 +138,10 @@ export default function QuestionDetail() {
         fetch("http://localhost:8080/api/v1/answers/vote/" + id, {
             method: 'GET',
             credentials: 'include'
-        }).then((result) => {
-            if (result.status === 200) {
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            if (data.code === 200) {
                 fetchAnswers();
             }
         });
@@ -162,9 +169,10 @@ export default function QuestionDetail() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(answer),
             credentials: 'include'
-        }).then((result) => {
-            if (result.status === 201) {
-                setAnswerContent("");
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            if (data.code === 201) {
                 fetchAnswers();
                 simpleMde.current.value('');
             }
@@ -180,14 +188,16 @@ export default function QuestionDetail() {
             "questionId": params.id
         };
 
-        fetch("http://localhost:8080/api/v1/comment", {
+        fetch("http://localhost:8080/api/v1/questions/comment", {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(comment),
             credentials: 'include'
         }).then((result) => {
-            if (result.status === 201) {
-                fetchQuestionComment();
+            return result.json();
+        }).then((data) => {
+            if (data.code === 201) {
+                fetchQuestion();
             }
         });
     }
@@ -201,13 +211,15 @@ export default function QuestionDetail() {
             "answerId": parseInt(id)
         };
 
-        fetch("http://localhost:8080/api/v1/comment/answer", {
+        fetch("http://localhost:8080/api/v1/answers/comment", {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(comment),
             credentials: 'include'
-        }).then((result) => {
-            if (result.status === 201) {
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            if (data.code === 201) {
                 fetchAnswers();
             }
         });
@@ -297,7 +309,7 @@ export default function QuestionDetail() {
                                        placeholder={username !== "" ? '답변을 작성하세요' : '로그인이 필요합니다.'}
                                        name="content"
                                        disabled={username === ""}
-                                       required/>
+                                       />
 
                                 <button type="submit"
                                         disabled={username === ""}

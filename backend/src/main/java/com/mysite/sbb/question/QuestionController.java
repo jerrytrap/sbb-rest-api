@@ -2,6 +2,8 @@ package com.mysite.sbb.question;
 
 import com.mysite.sbb.category.Category;
 import com.mysite.sbb.category.CategoryService;
+import com.mysite.sbb.comment.CommentForm;
+import com.mysite.sbb.comment.CommentService;
 import com.mysite.sbb.global.ResponseDto;
 import com.mysite.sbb.user.SiteUser;
 import com.mysite.sbb.user.UserService;
@@ -25,6 +27,7 @@ public class QuestionController {
     private final QuestionService questionService;
     private final UserService userService;
     private final CategoryService categoryService;
+    private final CommentService commentService;
 
     @GetMapping
     public ResponseDto<Page<QuestionDto>> getPageQuestions(
@@ -92,6 +95,16 @@ public class QuestionController {
         questionService.vote(question, siteUser);
 
         return new ResponseDto<>(HttpStatus.OK.value(), "추천 완료");
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/comment")
+    public ResponseDto<Void> createQuestionComment(@RequestBody @Valid CommentForm commentForm, Principal principal) {
+        Question question = questionService.getQuestion(commentForm.getQuestionId());
+        SiteUser siteUser = userService.getUser(principal.getName());
+
+        commentService.createComment(commentForm.getContent(), question, siteUser);
+        return new ResponseDto<>(HttpStatus.CREATED.value(), "댓글 생성 완료");
     }
 
     private Page<QuestionDto> convertPageToDto(Page<Question> questionPage) {
