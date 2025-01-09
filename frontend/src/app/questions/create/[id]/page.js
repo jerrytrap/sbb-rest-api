@@ -1,19 +1,36 @@
 'use client';
 
 import {useParams, useRouter} from "next/navigation";
+import {useEffect, useRef} from "react";
+import SimpleMDE from "simplemde";
+import 'simplemde/dist/simplemde.min.css';
 
 export default function QuestionCreateForm() {
     const router = useRouter();
     const params = useParams();
+    const editorRef = useRef(null);
+    const simpleMde = useRef(null);
+
+    useEffect(() => {
+        simpleMde.current = new SimpleMDE({
+            element: editorRef.current,
+            spellChecker: false,
+            minHeight: '300px',
+        });
+    }, []);
 
     const submitQuestion = (e) => {
         e.preventDefault();
-        const formData = new FormData(e.target);
-        formData.append("categoryId", params.id);
+        const question = {
+            "subject": e.target.subject.value,
+            "content": editorRef.current.value,
+            "categoryId": params.id
+        }
 
         fetch("http://localhost:8080/api/v1/questions", {
             method: "POST",
-            body: formData,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(question),
             credentials: 'include'
         }).then((response) => {
             if (response.status === 201) {
@@ -41,11 +58,8 @@ export default function QuestionCreateForm() {
                 <div className="mb-4">
                     <label htmlFor="content" className="block text-lg font-medium text-gray-700">내용</label>
                     <textarea
-                        id="content"
-                        name="content"
+                        ref={editorRef}
                         className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        rows="10"
-                        required
                     ></textarea>
                 </div>
 

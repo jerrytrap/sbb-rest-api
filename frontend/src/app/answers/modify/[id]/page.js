@@ -1,29 +1,36 @@
 'use client';
 
 import {useParams, useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
+import SimpleMDE from "simplemde";
+import 'simplemde/dist/simplemde.min.css';
 
 export default function QuestionModifyForm() {
     const params = useParams();
     const router = useRouter();
-    const [answerContent, setAnswerContent] = useState("");
-
-    const handleChange = (e) => {
-        setAnswerContent(e.target.value);
-    };
+    const editorRef = useRef(null);
+    const simpleMde = useRef(null);
 
     useEffect(() => {
+        simpleMde.current = new SimpleMDE({
+            element: editorRef.current,
+            spellChecker: false,
+            minHeight: '300px',
+        });
         getOldData();
     }, []);
 
     const submitAnswer = (e) => {
         e.preventDefault();
-        const answer = {"content": answerContent};
+        const updatedData = {
+            content: editorRef.current.value,
+            categoryId: params.id
+        };
 
         fetch("http://localhost:8080/api/v1/answers?id=" + params.id, {
             method: "PATCH",
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(answer),
+            body: JSON.stringify(updatedData),
             credentials: 'include'
         }).then((response) => {
             if (response.status === 200) {
@@ -41,7 +48,7 @@ export default function QuestionModifyForm() {
                 throw new Error("Failed to fetch");
             }
             const result = await response.json();
-            setAnswerContent(result.content)
+            simpleMde.current.value(result.content);
         } catch (error) {
             throw new Error("Error fetching data:", error);
         }
@@ -54,13 +61,8 @@ export default function QuestionModifyForm() {
                 <div className="mb-4">
                     <label htmlFor="content" className="block text-sm font-medium text-gray-700">내용</label>
                     <textarea
-                        id="content"
-                        name="content"
+                        ref={editorRef}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        rows="10"
-                        value={answerContent}
-                        onChange={handleChange}
-                        required
                     ></textarea>
                 </div>
 

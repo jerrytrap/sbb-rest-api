@@ -1,6 +1,10 @@
 'use client';
 import {useParams, useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
+import ReactMarkdown from 'react-markdown';
+import "katex/dist/katex.min.css";
+import SimpleMDE from 'simplemde';
+import 'simplemde/dist/simplemde.min.css';
 
 export default function QuestionDetail() {
     const params = useParams();
@@ -13,6 +17,16 @@ export default function QuestionDetail() {
     const [totalAnswers, setTotalAnswers] = useState(0);
     const [currentPage, setCurrentPage] = useState(0);
     const [order, setOrder] = useState("createDate");
+    const editorRef = useRef(null);
+    const simpleMde = useRef(null);
+
+    useEffect(() => {
+        simpleMde.current = new SimpleMDE({
+            element: editorRef.current,
+            spellChecker: false,
+            minHeight: '300px',
+        });
+    }, []);
 
     useEffect(() => {
         fetchQuestion();
@@ -144,7 +158,7 @@ export default function QuestionDetail() {
 
     const createAnswer = (e) => {
         e.preventDefault();
-        const answer = {"content": answerContent};
+        const answer = {"content": editorRef.current.value};
 
         fetch("http://localhost:8080/api/v1/answers?question_id=" + params.id, {
             method: 'POST',
@@ -155,6 +169,7 @@ export default function QuestionDetail() {
             if (result.status === 201) {
                 setAnswerContent("");
                 fetchAnswers();
+                simpleMde.current.value('');
             }
         });
     }
@@ -210,7 +225,11 @@ export default function QuestionDetail() {
             <h2 className="border-b-2 py-2 text-xl font-semibold">{question.subject}</h2>
             <div className="my-3 border rounded-lg shadow-md bg-white">
                 <div className="p-4">
-                    <div className="mb-4">{question.content}</div>
+                    <div className="mb-4">
+                        <ReactMarkdown
+                        className="prose"
+                        children={question.content}/>
+                    </div>
                     <div className="flex justify-end space-x-4">
                         <div className="badge bg-gray-100 text-gray-800 p-2 text-start mx-3 rounded-lg shadow-md">
                             <div className="mb-2">modified at</div>
@@ -305,7 +324,12 @@ export default function QuestionDetail() {
             {answers.map((answer) => (
                 <div key={answer.id} className="card my-3">
                     <div className="my-3 border rounded-lg shadow-md bg-white p-4">
-                        <div className="card-text mb-4">{answer.content}</div>
+                        <div className="card-text mb-4">
+                            <ReactMarkdown
+                                className="prose"
+                                children={answer.content}
+                            />
+                        </div>
                         <div className="flex justify-end space-x-4">
                             {answer.modifyDate && (
                                 <div className="badge bg-light text-dark p-2 rounded-md shadow-md">
@@ -422,13 +446,10 @@ export default function QuestionDetail() {
                 <form onSubmit={createAnswer}>
                     <div className="mb-3">
                         <textarea
-                            value={answerContent}
-                            onChange={(e) => setAnswerContent(e.target.value)}
-                            rows="10"
+                            ref={editorRef}
                             className="form-control w-full p-3 border rounded-md"
                             placeholder={username !== "" ? '답변을 작성하세요' : '로그인이 필요합니다.'}
                             disabled={username === ""}
-                            required
                         />
                     </div>
 

@@ -50,7 +50,7 @@ public class QuestionController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<String> create(@Valid QuestionForm questionForm, Principal principal) {
+    public ResponseEntity<String> create(@RequestBody @Valid QuestionForm questionForm, Principal principal) {
         try {
             SiteUser siteUser = userService.getUser(principal.getName());
             Category category = categoryService.getCategory(questionForm.getCategoryId());
@@ -63,7 +63,7 @@ public class QuestionController {
 
     @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{id}")
-    public ResponseEntity<String> modify(@Valid QuestionForm questionForm, Principal principal, @PathVariable("id") Integer id) {
+    public ResponseEntity<String> modify(@RequestBody @Valid QuestionForm questionForm, Principal principal, @PathVariable("id") Integer id) {
         try {
             Question question = questionService.getQuestion(id);
             if (!question.getAuthor().getUsername().equals(principal.getName())) {

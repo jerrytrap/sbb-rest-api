@@ -1,7 +1,9 @@
 'use client';
 
 import {useParams, useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
+import SimpleMDE from "simplemde";
+import 'simplemde/dist/simplemde.min.css';
 
 export default function QuestionModifyForm() {
     const params = useParams();
@@ -10,6 +12,8 @@ export default function QuestionModifyForm() {
         subject: '',
         content: ''
     });
+    const editorRef = useRef(null);
+    const simpleMde = useRef(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -20,16 +24,26 @@ export default function QuestionModifyForm() {
     };
 
     useEffect(() => {
+        simpleMde.current = new SimpleMDE({
+            element: editorRef.current,
+            spellChecker: false,
+            minHeight: '300px',
+        });
         getOldData();
     }, []);
 
     const submitQuestion = (e) => {
         e.preventDefault();
-        const formData = new FormData(e.target);
+        const updatedData = {
+            subject: formData.subject,
+            content: editorRef.current.value,
+            categoryId: params.id
+        };
 
         fetch("http://localhost:8080/api/v1/questions/" + params.id, {
             method: "PATCH",
-            body: formData,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedData),
             credentials: 'include'
         }).then((response) => {
             if (response.status === 200) {
@@ -51,6 +65,7 @@ export default function QuestionModifyForm() {
                 subject: result.subject,
                 content: result.content
             })
+            simpleMde.current.value(result.content);
         } catch (error) {
             throw new Error("Error fetching data:", error);
         }
@@ -75,13 +90,8 @@ export default function QuestionModifyForm() {
                 <div className="mb-4">
                     <label htmlFor="content" className="block text-sm font-medium text-gray-700">내용</label>
                     <textarea
-                        id="content"
-                        name="content"
+                        ref={editorRef}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        rows="10"
-                        value={formData.content}
-                        onChange={handleChange}
-                        required
                     ></textarea>
                 </div>
 
