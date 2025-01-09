@@ -16,18 +16,20 @@ export default function Login() {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(formData),
             credentials: 'include'
-        })
-
-        if (response.status === 200) {
-            alert("비밀번호를 변경했습니다.")
-            await fetch("http://localhost:8080/user/logout", {
-                method: 'POST',
-                credentials: 'include'
-            });
-            await router.replace("/");
-        } else {
-            alert("비밀번호를 다시 확인해주세요.");
-        }
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            if (data.code === 200) {
+                alert("비밀번호를 변경했습니다.")
+                fetch("http://localhost:8080/user/logout", {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                router.replace("/");
+            } else if (data.code === 400) {
+                alert("비밀번호를 다시 확인해주세요.");
+            }
+        });
     };
 
     return (

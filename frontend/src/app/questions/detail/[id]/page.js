@@ -52,11 +52,11 @@ export default function QuestionDetail() {
         fetch("http://localhost:8080/user/status", {
             method: 'GET',
             credentials: 'include'
-        }).then((result) => {
-            if (result.status === 200) {
-                result.text().then((data) => {
-                    setUsername(data);
-                })
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            if (data.code === 200) {
+                setUsername(data.data);
             }
         });
     }

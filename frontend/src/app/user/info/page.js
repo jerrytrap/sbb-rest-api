@@ -27,9 +27,6 @@ export default function UserInfo() {
                 headers: {'Content-Type': 'application/json'},
                 credentials: 'include'
             });
-            if (!response.ok) {
-                throw new Error("Failed to fetch");
-            }
 
             const result = await response.json();
             setUserInfo(result.data);
@@ -46,12 +43,9 @@ export default function UserInfo() {
                 body: JSON.stringify({username: userInfo.username}),
                 credentials: 'include'
             });
-            if (!response.ok) {
-                throw new Error("Failed to fetch");
-            }
 
             const result = await response.json();
-            setQuestions(result);
+            setQuestions(result.data);
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -65,12 +59,9 @@ export default function UserInfo() {
                 body: JSON.stringify({username: userInfo.username}),
                 credentials: 'include'
             });
-            if (!response.ok) {
-                throw new Error("Failed to fetch");
-            }
 
             const result = await response.json();
-            setAnswers(result);
+            setAnswers(result.data);
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -84,12 +75,9 @@ export default function UserInfo() {
                 body: JSON.stringify({username: userInfo.username}),
                 credentials: 'include'
             });
-            if (!response.ok) {
-                throw new Error("Failed to fetch");
-            }
 
             const result = await response.json();
-            setComments(result);
+            setComments(result.data);
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -160,6 +148,7 @@ export default function UserInfo() {
             <table className="table-auto w-full border-collapse">
                 <thead className="bg-gray-800 text-white">
                 <tr className="text-center">
+                    <th className="px-4 py-2">질문 번호</th>
                     <th className="px-4 py-2">내용</th>
                     <th className="px-4 py-2">작성일시</th>
                 </tr>
@@ -167,6 +156,10 @@ export default function UserInfo() {
                 <tbody>
                 {comments.map((comment) =>
                     <tr key={comment.id} className="text-center">
+                        <td className="px-4 py-2">
+                            <a href={`/questions/detail/${comment.questionId}`}
+                               className="text-blue-500 hover:underline">{comment.questionId}</a>
+                        </td>
                         <td className="px-4 py-2">{comment.content}</td>
                         <td className="px-4 py-2">{new Date(comment.createDate).toLocaleString()}</td>
                     </tr>

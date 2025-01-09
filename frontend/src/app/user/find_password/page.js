@@ -14,10 +14,12 @@ export default function FindPasswordForm() {
             body: JSON.stringify({"email": e.target.email.value}),
             credentials: 'include'
         }).then((response) => {
-            if (response.status === 200) {
+            return response.json();
+        }).then((data) => {
+            if (data.code === 200) {
                 alert("임시 비밀번호를 전송했습니다.");
                 router.replace("/");
-            } else {
+            } else if (data.code === 404) {
                 alert("등록되지 않은 이메일입니다.")
             }
         });

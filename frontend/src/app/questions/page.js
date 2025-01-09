@@ -67,10 +67,12 @@ export default function Home() {
         fetch("http://localhost:8080/user/status", {
             method: 'GET',
             credentials: 'include'
-        }).then((result) => {
-            if (result.status === 200) {
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            if (data.code === 200) {
                 setIsLogin(true);
-            } else if (result.status === 401) {
+            } else if (data.code === 401) {
                 setIsLogin(false);
             }
         });
